@@ -166,7 +166,7 @@ When optimizing a function, we often start by first bracketing an interval conta
 
 \section{Bisection method}
 \begin{frame}{Bisection}
-The bisection method maintains a bracket [a, b] in which at least one root is known to exist. If f is continuous on [a, b], and there is some $y \in [ f (a), f (b)]$, then the intermediate value theorem stipulates that there exists at least one $x \in [a, b]$, such that $f(x) = y$. It follows that a bracket [a, b] is guaranteed to contain a zero if $f(a)$ and $f(b)$ have opposite signs.
+The bisection method maintains a bracket $[a, b]$ in which at least one root is known to exist. If $f$ is continuous on $[a, b]$, and there is some $y \in [ f (a), f (b)]$, then the intermediate value theorem stipulates that there exists at least one $x \in [a, b]$, such that $f(x) = y$. It follows that a bracket [a, b] is guaranteed to contain a zero if $f(a)$ and $f(b)$ have opposite signs.
 
 \begin{itemize}
     \item Starting at [$a_1, b_1]$ 
@@ -174,23 +174,23 @@ The bisection method maintains a bracket [a, b] in which at least one root is kn
     \item if $f`(c_k) \geq 0$, let $a_{k+1} = a_k$, $b_{k+1}=c_k$, otherwise, $a_{k+1}=c_k$, $b_{k+1}=b_k$ 
     \item terminate if $(b_{k+1} - a_{k+1}) \leq \delta $ or it reaches the given number of iterations
 \end{itemize}
-\\\\\\\\\\\\\\
-Bisection method is commonly used to find roots of a function, or points where the function is zero.
 
+Bisection method is commonly used to find roots of a function, or points where the function is zero.
 \end{frame}
 
 \section{Fibonacci Search}
 \begin{frame}{Fibonacci Search}
 \begin{columns}
 \begin{column}{.6\textwidth}
-Suppose we have a unimodal $f$ bracketed by the interval [a, b].
+Suppose we have a unimodal $f$ bracketed by the interval $[a, b]$.
 \begin{itemize}
-    \item Query $f$ on the one-third and two-third points on the interval
+    \item Query $f$ on the 1/3 and 2/3 points on the interval
     \item Query $f$ on the center of the new interval
     \item Three queries ensures to shrink the interval by a factor of three
-    \item \cdots
-    
-This actually follows a \textcolor{red}{Fibonacci sequence}!
+    \item $\cdots$
+\end{itemize}
+   
+This actually follows %a \textcolor{red}{Fibonacci sequence}!
 \begin{equation*}
 F_n = 
     \begin{cases}
@@ -198,13 +198,12 @@ F_n =
     F_{n-1} + F_{n-2} & \textrm{otherwise}
     \end{cases}
 \end{equation*}
-\end{itemize}
+
 \end{column}
+
 \begin{column}{.4\textwidth}
-\\
-\\
-\\\\\\\
 \end{column}
+
 \end{columns}
 
 \end{frame}
@@ -216,7 +215,7 @@ Ideally, we want to shrink the interval $[a, b]$ within $n$ iterations. For each
 
 \begin{column}{0.6 \textwidth}
 \begin{equation*}
-   b_{k+1} - a_{k+1} = \frac{F_{n-k}}{F_{n-k+1}}(b_k - a_k) %= r(b_k - a_k)
+   b_{k+1} - a_{k+1} = \frac{F_{n-k}}{F_{n-k+1}}(b_k - a_k)
 \end{equation*}
 \begin{equation*}
 \begin{split}
@@ -237,7 +236,7 @@ Therefore,
 
 \begin{column}{0.4 \textwidth}
 \centering
-\textcolor{blue}{Solution of F_k}\\
+\textcolor{blue}{Solution of $F_k$}\\
 let $F_k = \tau^k$
 \begin{equation*}
     \tau^2 = \tau + 1
@@ -291,7 +290,7 @@ If we take the limit for large $n$, the ratio between successive values of the F
 \lim_{n\rightarrow\infty} \frac{F_{k-1}}{F_k} = \frac{\sqrt{5}-1}{2} = 0.618
 \end{equation*}
 
-Therefore, we can always use 0.618 and 0.391 to check the two points within the updated interval.\\\\\\\
+Therefore, we can always use 0.618 and 0.392 to check the two points within the updated interval.\\
 
 Both Fibonacci and golden ratio searches have the property of linear scaling. Fibonacci is in principle the optimum search strategy for bracketing a unimodal function. However, golden ratio is more popular due to its simplicity.
 

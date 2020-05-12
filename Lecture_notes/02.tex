@@ -217,7 +217,7 @@ Therefore, central difference has quadratic error.
 \begin{frame}{Complex Step}
 According to Taylor expansion,
 \begin{equation*}
-    f(x+ih) &= f(x) + ihf`(x) - h^2\frac{f``(x)}{2!} - ih^3\frac{f```(x)}{3!} + \cdots 
+    f(x+ih) = f(x) + ihf`(x) - h^2\frac{f``(x)}{2!} - ih^3\frac{f```(x)}{3!} + \cdots 
 \end{equation*}
 
 If we take only the imaginary part,
@@ -230,16 +230,18 @@ If we take only the imaginary part,
 While the real part is
 \begin{equation*}
 \begin{split}
-    \textrm{Re}(f(x+ih)) = f(x) - h^2\frac{f``(x)}{2!} + \cdots \\
-    f(x) = \textrm{Re}(f(x+ih)) + O(h^2)
+		\textrm{Re}(f(x+ih)) &= f(x) - h^2\frac{f``(x)}{2!} + \cdots \\
+		f(x) &= \textrm{Re}(f(x+ih)) + O(h^2)
 \end{split}    
 \end{equation*}
 
 The complex step method is advantageous since 
+
 \begin{itemize}
     \item Both $f(x)$ and $f`(x)$ can be evaluated in a single run
-    \item f`(x) has a cubic error
+    \item $f`(x)$ has a cubic error
 \end{itemize}
+
 \end{frame}
 
 \begin{frame}{Comparison}
