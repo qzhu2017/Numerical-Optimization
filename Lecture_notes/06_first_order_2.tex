@@ -153,7 +153,7 @@ Several methods have been proposed. They are commonly used in machine learning n
 \begin{column}{.6\textwidth}
 \begin{figure}
 \centering
-\includegraphics[width=60mm]{Lecture_notes/Figs/flat.jpeg}
+\includegraphics[width=60mm]{Figs/flat.jpeg}
 \end{figure}
 \end{column}
 \end{columns}
@@ -172,7 +172,7 @@ Thus we can modify the gradient descent to incorporate momentum.
 When $\beta$=0, it is gradient descent. 
 \begin{figure}
 \centering
-\includegraphics[width=100mm]{Lecture_notes/Figs/momentum.jpeg}
+\includegraphics[width=100mm]{Figs/momentum.jpeg}
 \end{figure}
 
 
@@ -188,7 +188,7 @@ One issue of momentum is that the steps do not slow down enough at the bottom of
 
 \begin{figure}
 \centering
-\includegraphics[width=100mm]{Lecture_notes/Figs/n-momentum.jpeg}
+\includegraphics[width=100mm]{Figs/n-momentum.jpeg}
 \end{figure}
 
 \end{frame}
@@ -211,7 +211,8 @@ In Adagrad, the learning rate may monotonically decrease. To prevent this, \text
 \begin{equation*}
     \boldsymbol{s}^{k+1} = \gamma \boldsymbol{s}^k + (1-\gamma)(\boldsymbol{g}^k \odot \boldsymbol{g}^k)
 \end{equation*}
-where $\gamma$ is between 0 and 1, and usually is 0.9
+
+where $\gamma$ is between 0 and 1, and usually is 0.9.
 
 \begin{equation*}
 \begin{split}
@@ -221,10 +222,11 @@ where $\gamma$ is between 0 and 1, and usually is 0.9
 \end{equation*}
 
 While in \textcolor{blue}{Adadelta}, an exponentially decaying average is used,
+
 \begin{equation*}
     x_i^{k+1} = x_i^k - \frac{\textrm{RMS}(\delta x_i)}{\epsilon + \textrm{RMS}(g_i)} g_i^k        
-
 \end{equation*}
+
 \end{frame}
 
 \section{Adam}

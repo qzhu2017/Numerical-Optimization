@@ -143,10 +143,10 @@ In the previous chapter, we have talked about the general strategy for optimizat
 \end{equation*} 
 The search direction often has the form
 \begin{equation}
-    d^k = -B^k^{-1} \nabla f(x^k)
+		d^k = -(B^k)^{-1} \nabla f(x^k)
 \end{equation}
 
-where $B^k$ is a symmetric and nonsingular matrix. In some method (e.g., steepest descent), $B^k$ is the identify matrix, while in (quasi-) Newton's method, $B&k$ is the approximate or exact Hessian. 
+where $B^k$ is a symmetric and nonsingular matrix. In some method (e.g., steepest descent), $B^k$ is the identify matrix, while in (quasi-) Newton's method, $B^k$ is the approximate or exact Hessian. 
 
 In this lecture, we will cover the \textcolor{blue}{first-order} methods which \textcolor{blue}{purely rely on the gradient information}.
 
@@ -165,16 +165,20 @@ If we optimize the step size at each step, we have
 \end{equation*}
 
 Since 
+
 \begin{equation*}
     \nabla f(x^k + \alpha d^k)^T d^k = 0
 \end{equation*}
 We know
+
 \begin{equation*}
     d^{k+1} = - \frac{\nabla f(x^k + \alpha d^k)}{||\nabla f(x^k + \alpha^k)||}
 \end{equation*}
+
 It is obvious that the two consecutive directions are \textcolor{blue}{orthogonal}.
+
 \begin{equation*}
-    d^{k+1}^T d^k = 0
+	(d^{k+1})^T d^k = 0
 \end{equation*}
 
 \end{frame}
@@ -196,7 +200,7 @@ where $A$ is $N \times N$ symmetric and positive definite, and thus $f$ has a un
 
 When solving $Ax = b$, a powerful method is to find a sequence of $N$ \textcolor{blue}{conjugate directions} satisfying 
 \begin{equation*}
-    d^i^T A d^j = 0 ~~~ (i\neq j)
+		(d^i)^T A d^j = 0 ~~~ (i\neq j)
 \end{equation*}
 
 \end{frame}
@@ -265,7 +269,7 @@ Unfortunately, we don't know the value of $A$ that best approximate $f$ around $
 \begin{frame}{Comparison between Conjugate Gradient and Steepest Descent}
 \begin{figure}
 \centering
-\includegraphics[width=120mm]{Lecture_notes/Figs/cg-sd.jpg}
+\includegraphics[width=120mm]{Figs/cg-sd.jpg}
 \end{figure}
 \end{frame}
 
