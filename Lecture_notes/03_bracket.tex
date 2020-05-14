@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization: Bracketing Methods} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Optimization]{Numerical Optimization III: Bracket and Zoom} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -148,7 +148,7 @@ A \textcolor{blue}{unimodal function} $f$ is one where there is a unique $x_0$, 
 \end{figure}
 \end{frame}
 
-\section{Finding an Initial Bracket}
+%\section{Finding an Initial Bracket}
 \begin{frame}{Initial Bracket}
 When optimizing a function, we often start by first bracketing an interval containing a local minimum.
 \begin{itemize}
@@ -160,23 +160,8 @@ When optimizing a function, we often start by first bracketing an interval conta
 \centering
 \includegraphics[width=120mm]{Figs/bracket.jpeg}
 \end{figure}
-
 \end{frame}
 
-
-\section{Bisection method}
-\begin{frame}{Bisection}
-The bisection method maintains a bracket $[a, b]$ in which at least one root is known to exist. If $f$ is continuous on $[a, b]$, and there is some $y \in [ f (a), f (b)]$, then the intermediate value theorem stipulates that there exists at least one $x \in [a, b]$, such that $f(x) = y$. It follows that a bracket [a, b] is guaranteed to contain a zero if $f(a)$ and $f(b)$ have opposite signs.
-
-\begin{itemize}
-    \item Starting at [$a_1, b_1]$ 
-    \item if $f`(a_k) \leq 0$ and $f`(b_k) \geq 0$, let $c_k = \frac{1}{2} (a_k + b_k)$
-    \item if $f`(c_k) \geq 0$, let $a_{k+1} = a_k$, $b_{k+1}=c_k$, otherwise, $a_{k+1}=c_k$, $b_{k+1}=b_k$ 
-    \item terminate if $(b_{k+1} - a_{k+1}) \leq \delta $ or it reaches the given number of iterations
-\end{itemize}
-
-Bisection method is commonly used to find roots of a function, or points where the function is zero.
-\end{frame}
 
 \section{Fibonacci Search}
 \begin{frame}{Fibonacci Search}
@@ -205,7 +190,6 @@ F_n =
 \end{column}
 
 \end{columns}
-
 \end{frame}
 
 \begin{frame}{Fibonacci Search Algorithm}
@@ -258,6 +242,8 @@ Since $F_0 = F_1 = 1$,
 
 \end{frame}
 
+%\end{frame}
+
 \begin{frame}{Fibonacci Algorithm}
 Suppose we have a unimodal $f$ bracketed by the interval [a, b].
 \begin{enumerate}
@@ -306,12 +292,91 @@ Both Fibonacci and golden ratio searches have the property of linear scaling. Fi
 \textcolor{blue}{Homework: reproduce the above figure by yourself!}
 \end{frame}
 
+\section{Interpolation}
+
+\begin{frame}{Interpolation with the help of gradient}
+Both Fibonacci and 0.618 searches do not need the gradient information. However, if the gradient is available, identifying the phase can be even faster. The idea is to approximate the target function in a analytic manner. 
+\begin{itemize}
+    \item Linear: bisection
+    \item quadratic fit
+    \item cubic interpolation
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Bisection}
+The bisection method maintains a bracket $[a, b]$ in which at least one root is known to exist. If $f$ is continuous on $[a, b]$, and there is some $y \in [ f (a), f (b)]$, then the intermediate value theorem stipulates that there exists at least one $x \in [a, b]$, such that $f(x) = y$. It follows that a bracket [a, b] is guaranteed to contain a zero if $f(a)$ and $f(b)$ have opposite signs.
+
+\begin{itemize}
+    \item Starting at [$a_1, b_1]$ 
+    \item if $f`(a_k) \leq 0$ and $f`(b_k) \geq 0$, let $c_k = \frac{1}{2} (a_k + b_k)$
+    \item if $f`(c_k) \geq 0$, let $a_{k+1} = a_k$, $b_{k+1}=c_k$, otherwise, $a_{k+1}=c_k$, $b_{k+1}=b_k$ 
+    \item terminate if $(b_{k+1} - a_{k+1}) \leq \delta $ or it reaches the given number of iterations
+\end{itemize}
+
+Bisection method is commonly used to find roots of a function, or points where the function is zero.    
+\end{frame}
+
+\begin{frame}{Quadratic fit search}
+Given the bracketing point $a<b<c$, we want to find the coefficient $p_1, p_2, p_3$ which satisfies:
+\begin{equation*}
+    q(x) = p_1 + p_2x + p_3x^2
+\end{equation*}
+\begin{columns}
+\begin{column}{.4\textwidth}
+\begin{equation*}
+    \begin{split}
+        y_a &= p_1 + p_2a + p_3a^2\\
+        y_b &= p_1 + p_2b + p_3b^2\\
+        y_c &= p_1 + p_2c + p_3c^2
+    \end{split}
+\end{equation*}
+\end{column}
+
+\begin{column}{.6\textwidth}
+In matrix form, we have \\
+\begin{bmatrix}
+y_a\\
+y_b\\
+y_c
+\end{bmatrix}
+= 
+\begin{bmatrix}
+1 & a & a^2\\
+1 & b & b^2\\
+1 & c & c^2
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+p_1\\
+p_2\\
+p_3
+\end{bmatrix}
+
+\end{column}
+\end{columns}
+
+\begin{equation*}
+    q(x) = y_a\frac{(x-b)(x-c)}{(a-b)(a-c)} + y_b\frac{(x-a)(x-c)}{(b-a)(b-c)} + y_c\frac{(x-a)(x-b)}{(c-a)(c-b)} 
+\end{equation*}
+
+We can solve the minimum by finding the derivative is zero:
+\begin{equation*}
+    x^* = \frac{1}{2} \frac{y_a(b^2-c^2) + y_b(c^2-a^2) + y_c(a^2-b^2)}{y_a(b-c) + y_b(c-a) + y_c(c-b)}
+\end{equation*}
+\end{frame}
+
+
+
+
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
         \item Many optimization methods shrink a bracketing interval
+        \item The step length is then selected by a zoom phase
+        \item Fibonacci search and golden section search has the linear scaling of $\tau = 0.618$. They are derivative free.
         \item Root-finding methods like the bisection method can be used to find where the derivative of a function is zero.
-        \item Fibonacci search and golden section search has the linear scaling of $\tau = 0.618$.
+        \item quadratic or cubic fit is more common choice in the zoom phase of line search
     \end{itemize}
 \end{frame}
 \end{document}
