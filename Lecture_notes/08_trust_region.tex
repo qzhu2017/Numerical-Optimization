@@ -28,6 +28,32 @@
     tabsize=2
 }
  
+%%
+%% Julia definition (c) 2014 Jubobs
+%%
+\lstdefinelanguage{Julia}%
+  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+      end,export,false,for,function,immutable,import,importall,if,in,%
+      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+      using,while},%
+   sensitive=true,%
+   alsoother={$},%
+   morecomment=[l]\#,%
+   morecomment=[n]{\#=}{=\#},%
+   morestring=[s]{"}{"},%
+   morestring=[m]{'}{'},%
+}[keywords,comments,strings]%
+
+\lstset{%
+    language         = Julia,
+    basicstyle       = \ttfamily,
+    keywordstyle     = \bfseries\color{blue},
+    stringstyle      = \color{magenta},
+    commentstyle     = \color{ForestGreen},
+    showstringspaces = false,
+}
+ 
+ 
 \lstset{style=mystyle}
 
 \mode<presentation> {
@@ -108,7 +134,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization I: Introduction} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Trust Region Methods]{Numerical Optimization: Trust Region Methods} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,161 +161,98 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Syllabus}
-\begin{frame}{Syllabus}
+\section{Trust Region Model}
+\begin{frame}{The problem of line search}
+In the line search method, one usually use the direction based on the first- or second-order derivative, and then do an approximate 1D search. 
+If the derivative is far from the local minimum, such search may result in excessively large steps or premature convergence.
 
-    
-\begin{columns}
-
-\begin{column}{.6\textwidth}
-We have two goals: 
-\begin{itemize}
-    \item Learn Julia programming
-    \item Understand the optimization methods
-\end{itemize}
-Subjects to be covered
-\begin{itemize}
-    \item Julia programming
-    \item Local Optimization
-    \begin{itemize}
-        \item Derivatives and Gradients
-        \item Bracketing
-        \item First/second-Order optimization
-        \item Gradient free methods
-        \item Stochastic methods
-    \end{itemize}
-    \item Global Optimization
-    \item Sampling Plans
-    \item Surrogate Optimization
-    \item Expression Optimization
-
-\end{itemize}
-\end{column}
-\begin{column}{.4\textwidth}
 \begin{figure}
 \centering
-\includegraphics[width=30mm]{Figs/algo_opt.jpg}
+\includegraphics[width=90mm]{Lecture_notes/Figs/trust-region.jpeg}
 \end{figure}
-Meeting twice a week (~90 minutes each time).\\
-\begin{itemize}
-    \item review of homework (20-30 mins)
-    \item lecture (30-50 mins)
-    \item coding (20-30 mins)
-\end{itemize}
-\end{column}
+\end{frame}
 
-\end{columns}
+\begin{frame}{Line search .v.s trust region}
+\begin{alertblock}{Line search}
+\begin{itemize}
+    \item Find the direction of improvement
+    \item Select a step length
+\end{itemize}
+\end{alertblock}
+\vfill
+\begin{alertblock}{Trust region}
+\begin{itemize}
+    \item Select a trust region (within a hypersphere)
+    \item Find a point of improvement
+\end{itemize}
+\end{alertblock}
 
 \end{frame}
 
-\section{Why Optimization?}
-\begin{frame}{Why optimization}
-\begin{columns}
-\begin{column}{.55\textwidth}
-A typical optimization problem is to 
+\section{The outline of trust region approach}
+\begin{frame}{Quadratic approximation}
+In this chapter, we will assume that the model function $m_k$ that is used at each iterate $x_k$ is quadratic. 
+$m_k$ is based on the Taylor-series expansion of $f$.
 \begin{equation*}
-\begin{split}
-    \textrm{minimize} &~~ f(x)\\
-    \textrm{subject to} &~~ x \in X    
-\end{split}
+    f(x_k + p) = f(x_k) + \nabla f(x_k)^T p + \frac{1}{2}p^T \nabla^2 f(x_k + tp)p,
 \end{equation*}
-A design point ($x$) can be represented as a vector of values
-corresponding to different design variables.
-\end{column}
+where $t$ is some scalar in the interval (0,1). 
 
-\begin{column}{.45\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/solution-space.jpeg}
-\end{figure}
-\end{column}
-\end{columns}
+By using an approximation $B_k$ to the Hessian in the second-order term, $m_k$ is defined as follows:
+\begin{equation*}
+    m_k(p) = f(x_k) + \nabla f(x_k)^T p + \frac{1}{2}p^T B_k f(x_k + tp)p,,
+\end{equation*}
 
-A \textcolor{blue}{necessary condition?} for $f(x)$ reaches the minimum is that \textcolor{blue}{$f`(x)=0$}.
+The difference between $m_k(p)$ and $f(x_k + p)$ is $O(p^2)$ ,which is small when $p$ is small.
+
 \end{frame}
 
+\begin{frame}{Trust region step}
+The trust-region method steps to the minimizer of $m_k$ within the dotted circle, yielding a more significant reduction in $f$ and better progress toward the solution.
 
-\begin{frame}{Optimization is hard!}
+To obtain each step, we seek a solution of the subproblem
+\begin{gather*}
+    \textrm{min}~ m_k(p) = f(x_k) + \nabla f(x_k)^T p + \frac{1}{2}p^T B_k f(x_k + tp)p, \\
+    \textrm{s.t.}~~ ||p||_2 \leq \Delta_k,    
+\end{gather*}
+
+where $\Delta_k$ is the \textcolor{blue}{trust-region radius}.
+
+Thus, the trust-region approach requires us to solve a sequence of subproblems
+in which the objective function and constraint (which can be written as $p^Tp \leq \Delta_k$)
+are both quadratic, which is easy to solve if it is convex. 
+\end{frame}
+
+\begin{frame}{How to adjust the $\Delta_k$?}
+For a given step, we define 
+\begin{equation*}
+    \rho_k = \frac{f(x_k) - f(x_k+p_k)}{m_k(0) - m_k(p_k)}
+\end{equation*}
+The numerator is called the \textcolor{blue}{actual reduction}. \\
+The denominator is the \textcolor{blue}{predicted reduction}, which is non-negative. \\
+
 \begin{itemize}
-    \item $f`(x)=0$ is not a sufficient condition.
-\begin{figure}
-\centering
-\includegraphics[width=80mm]{Figs/minimum.jpeg}
-\end{figure}
-    \item There exist many points where {$f`(x)=0$}.
-\begin{figure}
-\centering
-\includegraphics[width=60mm]{Figs/multi-minima.jpeg}
-\end{figure}
-    \item $f(x)$ and $f`(x)$ are hard to evaluate.
-
+    \item if $\rho_k < 0$, the new objective value $f(x_k + p_k)$ is greater than $f(x_k)$, \textcolor{red}{reject}.
+    \item if $\rho_k \approx 1$, there is good agreement between the model $m_k$ and the function $f$, \textcolor{red}{expand the trust region} 
+    \item if $0<\rho_k \ll 1$, \textcolor{red}{shrink the trust region} by reducing $\delta_k$
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Algorithm}
 
-\section{Why Julia?}
-\begin{frame}{Why Julia?}
-\textcolor{red}{Run Julia at } \url{https://www.juliabox.com}
+\lstinputlisting[language=julia]{trust.jl}
 
-\begin{columns}
-
-\begin{column}{.5\textwidth}
-\begin{itemize}
-    \item Math-friendly
-    \item Looks like Python 
-    \item Runs like C/Fortran
-    \item Growing ecosystem
-\end{itemize}
-\end{column}
-
-\begin{column}{.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/julia.png}
-\end{figure}
-\end{column}
-\end{columns}
-\begin{figure}
-\centering
-\includegraphics[width=90mm]{Figs/julia-comp.png}
-\end{figure}
 \end{frame}
-
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Optimization in engineering is the process of finding the best system design subject to a set of constraints.
-        \item Optimization can be transformed to a math problem but it is sometimes hard to solve
-        \item We will extensively using the Julia language to learn how to solve the optimization numerically
+        \item Trust region method may perform better when the initial point is far from the local minimum
+        \item The correctness of trust region method relies on the accuracy of the model function
+        \item The step size is controled by the trust-region radius which is updated each step
+        \item Quadratic approximation needs the information of hessian
+        \item The subproblem optimization may be tricky when hessian is not positive definite
     \end{itemize}
 \end{frame}
-
-
-\section{Homework}
-\begin{frame}{Homework}
-In Julia, write the following trial functions, make the contour plots and analyze their minima behavior.
-\begin{itemize}
-    \item Booth's function
-    \begin{equation*}
-        f(x_1, x_2) = (x_1 + 2x_2 -7)^2 + (2x_1 + x_2 -5)^2
-    \end{equation*}
-
-    \item Barnin function
-    \begin{equation*}
-        f(x_1, x_2) = a(x_2 - bx_1^2 + cx_1 - r)^2 + s(1-t)cos(x_1) +s
-    \end{equation*}
-    where $a=1, b=5.1/(4\pi^2), c=5/\pi, r=6, s=10, t=1/8\pi$.
-    
-    \item Rosenbrock's Banana function
-    \begin{equation*}
-        f(x_1, x_2) = (a-x_1)^2 + b(x_2-x_1^2)^2
-    \end{equation*}
-    where $a=1, b=5$.
-    
-\end{itemize}
-More functions can be found at \url{https://en.wikipedia.org/wiki/Test_functions_for_optimization}
-\end{frame}
-
 \end{document}
 

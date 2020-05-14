@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization I: Introduction} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Gradient Descent]{Numerical Optimization VI: 1st order methods} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -134,162 +134,124 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-
-\section{Syllabus}
-\begin{frame}{Syllabus}
-
-    
+\section{Gradient methods with fixed learning rate}
+\begin{frame}{Gradient methods with fixed learning rate}
+We have talked about steepest descent and conjugate gradient methods, which usually work with the line search methods. Alliteratively, it is popular to use the fixed learning rate method based on Gradient descent. However, the standard version will take a long time to traverse a nearly flat surface.
+Several methods have been proposed. They are commonly used in machine learning neural networks training.
 \begin{columns}
+\begin{column}{.4\textwidth}
+\begin{itemize}
+    \item Momentum
+    \item Nesterov Momentum
+    \item Adagrad
+    \item RMSProp
+    \item Adadelta
+    \item Adam
+\end{itemize}
+\end{column}
 
 \begin{column}{.6\textwidth}
-We have two goals: 
-\begin{itemize}
-    \item Learn Julia programming
-    \item Understand the optimization methods
-\end{itemize}
-Subjects to be covered
-\begin{itemize}
-    \item Julia programming
-    \item Local Optimization
-    \begin{itemize}
-        \item Derivatives and Gradients
-        \item Bracketing
-        \item First/second-Order optimization
-        \item Gradient free methods
-        \item Stochastic methods
-    \end{itemize}
-    \item Global Optimization
-    \item Sampling Plans
-    \item Surrogate Optimization
-    \item Expression Optimization
-
-\end{itemize}
-\end{column}
-\begin{column}{.4\textwidth}
 \begin{figure}
 \centering
-\includegraphics[width=30mm]{Figs/algo_opt.jpg}
+\includegraphics[width=60mm]{Lecture_notes/Figs/flat.jpeg}
 \end{figure}
-Meeting twice a week (~90 minutes each time).\\
-\begin{itemize}
-    \item review of homework (20-30 mins)
-    \item lecture (30-50 mins)
-    \item coding (20-30 mins)
-\end{itemize}
 \end{column}
-
 \end{columns}
+\end{frame}
+
+
+
+\section{Momentum}
+\begin{frame}{Momentum}
+Allowing momentum to accumulate is one way too speed progress. 
+Thus we can modify the gradient descent to incorporate momentum.
+\begin{gather*}
+    v^{k+1} = \beta^k + \alpha^k g^k \\
+    x^{k+1} = x^k + v^{k+1} 
+\end{gather*}
+When $\beta$=0, it is gradient descent. 
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Lecture_notes/Figs/momentum.jpeg}
+\end{figure}
+
 
 \end{frame}
 
-\section{Why Optimization?}
-\begin{frame}{Why optimization}
-\begin{columns}
-\begin{column}{.55\textwidth}
-A typical optimization problem is to 
+\section{Nesterov Momentum}
+\begin{frame}{Nesterov Momentum}
+One issue of momentum is that the steps do not slow down enough at the bottom of a valley and it tends to \textcolor{blue}{overshoot the valley}. Nesterov Momentum remedies the issue by the following updates,
+\begin{gather*}
+    v^{k+1} = \beta^k + \alpha^k g^k \\
+    x^{k+1} = x^k + v^{k+1} 
+\end{gather*}
+
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Lecture_notes/Figs/n-momentum.jpeg}
+\end{figure}
+
+\end{frame}
+
+\section{Adagrad}
+\begin{frame}{Adagrad}
+Momentum and Nesterov Momentum update all componens of $x$ with the same learning rate. The adaptive subgradient method (Adagrad), adapts a learning rate for each one in x.
+\begin{gather*}
+    x_i^{k+1} = x_i^k - \frac{\alpha}{\epsilon + \sqrt{s_i^k}} g^k \\
+    s_i^k = \sum_{j=1}^k \bigg(g_i^j\bigg)^2 
+\end{gather*}
+where $\epsilon$ is a small value on the order of 1e-8, to prevent the case of division by zero. 
+Adagrad is far less sensitive to the learning rate $\alpha$. 
+\end{frame}
+
+\section{RMSProp and Adadelta}
+\begin{frame}{RMSProp and Adadelta}
+
+In Adagrad, the learning rate may monotonically decrease. To prevent this, \textcolor{blue}{RMPprop} maintains a decaying average of squared gradients.
+\begin{equation*}
+    \boldsymbol{s}^{k+1} = \gamma \boldsymbol{s}^k + (1-\gamma)(\boldsymbol{g}^k \odot \boldsymbol{g}^k)
+\end{equation*}
+where $\gamma$ is between 0 and 1, and usually is 0.9
+
 \begin{equation*}
 \begin{split}
-    \textrm{minimize} &~~ f(x)\\
-    \textrm{subject to} &~~ x \in X    
+    x_i^{k+1} &= x_i^k - \frac{\alpha}{\epsilon + \sqrt{s_i^k}} g_i^k \\
+              &= x_i^k - \frac{\alpha}{\epsilon + \textrm{RMS}(g_i)} g_i^k        
 \end{split}
 \end{equation*}
-A design point ($x$) can be represented as a vector of values
-corresponding to different design variables.
-\end{column}
 
-\begin{column}{.45\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/solution-space.jpeg}
-\end{figure}
-\end{column}
-\end{columns}
+While in \textcolor{blue}{Adadelta}, an exponentially decaying average is used,
+\begin{equation*}
+    x_i^{k+1} = x_i^k - \frac{\textrm{RMS}(\delta x_i)}{\epsilon + \textrm{RMS}(g_i)} g_i^k        
 
-A \textcolor{blue}{necessary condition?} for $f(x)$ reaches the minimum is that \textcolor{blue}{$f`(x)=0$}.
+\end{equation*}
 \end{frame}
 
+\section{Adam}
+\begin{frame}{Adam}
 
-\begin{frame}{Optimization is hard!}
-\begin{itemize}
-    \item $f`(x)=0$ is not a sufficient condition.
-\begin{figure}
-\centering
-\includegraphics[width=80mm]{Figs/minimum.jpeg}
-\end{figure}
-    \item There exist many points where {$f`(x)=0$}.
-\begin{figure}
-\centering
-\includegraphics[width=60mm]{Figs/multi-minima.jpeg}
-\end{figure}
-    \item $f(x)$ and $f`(x)$ are hard to evaluate.
-
-\end{itemize}
-\end{frame}
+The adaptive moment estimation (Adam) is so far the most widely used optimization method in neural network training.
+It stores both an exponentially decaying squared gradient like RMSProp and Adadelta, but also an exponentially decaying gradient like momentum.
+\begin{equation*}
+ \begin{split}
+    v^{k+1} &= \gamma_v v^k + (1-\gamma_v) g^k \\
+    s^{k+1} &= \gamma_s s^k + (1-\gamma_s) \bigg(g^k \odot g^k \bigg)\\
+    \hat{v}^{k+1} &= v^{k+1}/(1-\gamma_v^k)\\
+    \hat{s}^{k+1} &= s^{k+1}/(1-\gamma_s^k)\\
+    x^{k+1} &= x^k - \alpha \hat{v}^{k+1}/\bigg(\epsilon + \sqrt{\hat{s}^{k+1}}\bigg)
+ \end{split}
+\end{equation*}
 
 
-\section{Why Julia?}
-\begin{frame}{Why Julia?}
-\textcolor{red}{Run Julia at } \url{https://www.juliabox.com}
-
-\begin{columns}
-
-\begin{column}{.5\textwidth}
-\begin{itemize}
-    \item Math-friendly
-    \item Looks like Python 
-    \item Runs like C/Fortran
-    \item Growing ecosystem
-\end{itemize}
-\end{column}
-
-\begin{column}{.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/julia.png}
-\end{figure}
-\end{column}
-\end{columns}
-\begin{figure}
-\centering
-\includegraphics[width=90mm]{Figs/julia-comp.png}
-\end{figure}
 \end{frame}
 
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Optimization in engineering is the process of finding the best system design subject to a set of constraints.
-        \item Optimization can be transformed to a math problem but it is sometimes hard to solve
-        \item We will extensively using the Julia language to learn how to solve the optimization numerically
+        \item Descent methods with momentum build up progress in favorable directions
+        \item A wide variety of accelerated descent methods use special techniques to speed up descent
     \end{itemize}
 \end{frame}
-
-
-\section{Homework}
-\begin{frame}{Homework}
-In Julia, write the following trial functions, make the contour plots and analyze their minima behavior.
-\begin{itemize}
-    \item Booth's function
-    \begin{equation*}
-        f(x_1, x_2) = (x_1 + 2x_2 -7)^2 + (2x_1 + x_2 -5)^2
-    \end{equation*}
-
-    \item Barnin function
-    \begin{equation*}
-        f(x_1, x_2) = a(x_2 - bx_1^2 + cx_1 - r)^2 + s(1-t)cos(x_1) +s
-    \end{equation*}
-    where $a=1, b=5.1/(4\pi^2), c=5/\pi, r=6, s=10, t=1/8\pi$.
-    
-    \item Rosenbrock's Banana function
-    \begin{equation*}
-        f(x_1, x_2) = (a-x_1)^2 + b(x_2-x_1^2)^2
-    \end{equation*}
-    where $a=1, b=5$.
-    
-\end{itemize}
-More functions can be found at \url{https://en.wikipedia.org/wiki/Test_functions_for_optimization}
-\end{frame}
-
 \end{document}
 
