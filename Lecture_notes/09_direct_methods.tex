@@ -203,8 +203,8 @@ The last direction is replaced with the direction of $\boldsymbol{x}^{n+1} - \bo
 \begin{column}{.7\textwidth}
 \begin{equation*}
 \begin{split}
-    \boldsymbol{x}^{i+1} &\leftarrow ~\textrm{line search} (f, \boldsymbol{x}^i, \boldsymbol{u}^i) ~\textrm{for all i in } \{1, \cdots, n\}\\
-    \boldsymbol{u}^{i+1} &\leftarrow \boldsymbol{u}^{i+1} ~ \textrm{for all i in } \{1, \cdots, n-1\}\\
+		\boldsymbol{x}^{i+1} &\leftarrow ~{\textrm{line search}} (f, \boldsymbol{x}^i, \boldsymbol{u}^i) ~{\textrm{for all i in }} \{1, \cdots, n\}\\
+		\boldsymbol{u}^{i+1} &\leftarrow \boldsymbol{u}^{i+1} ~ {\textrm{for all i in } \{1, \cdots, n-1\}}\\
     \boldsymbol{u}^{n} &\leftarrow \boldsymbol{x}^{n+1} - \boldsymbol{x}^    
 \end{split}
 \end{equation*}
@@ -219,7 +219,6 @@ The last direction is replaced with the direction of $\boldsymbol{x}^{n+1} - \bo
 \end{column}
 
 \end{columns}
-%The process is repeated until convergence.
 
 Powell showed that for quadratic functions, after $k$ full iterations the last $k$ direction will be mutually conjugate.
 It is recommended to reset every $n$ or $n+1$ iterations.

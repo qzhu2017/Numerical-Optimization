@@ -249,7 +249,7 @@ In the BFGS algorithm, it does not approximate $\boldsymbol{Q^k}$, but handles $
 The minimize condition is,
 \begin{gather*}
     \underset{\boldsymbol{H}}{\min} ||\boldsymbol{H} - \boldsymbol{H}^{k}|| \\
-    \textrm{s.t.~~~~~} \boldsymbol{H} = \boldsymbol{H}^T,~~~~    \boldsymbol{H \gamma}^k = \boldsymbol{\delta}^k
+		{\textrm{s.t.~~~~~}} \boldsymbol{H} = \boldsymbol{H}^T,~~~~    \boldsymbol{H \gamma}^k = \boldsymbol{\delta}^k
 \end{gather*}
 
 \begin{equation*}
@@ -258,10 +258,8 @@ The minimize condition is,
     {(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k} 
     + \bigg(1 + \frac{(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k}{(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k}\bigg)
     \frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
-    %\frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^T)^k } { (\boldsymbol{\delta}^T)^k \boldsymbol{\gamma}^k}    
     
 \end{equation*}
-
 
 
 BFGS does better than DFP with approximate line search. 
@@ -272,12 +270,12 @@ BFGS does better than DFP with approximate line search.
 Comparing the two solutions from DFP and BFGS,
 \begin{equation*}
 \begin{cases}
-    \textrm{DFP:}~~  \boldsymbol{Q}^{k+1}  &= \boldsymbol{Q}^k - 
+		{\textrm{DFP:}}~~  \boldsymbol{Q}^{k+1}  &= \boldsymbol{Q}^k - 
     \frac{ \boldsymbol{Q}^k \boldsymbol{\gamma}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k }
     {(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k} 
     + \frac{\boldsymbol{\delta}(\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}\\
 
-    \textrm{BFGS:}~     \boldsymbol{Q}^{k+1} &= \boldsymbol{Q}^k - 
+		{\textrm{BFGS:}}~     \boldsymbol{Q}^{k+1} &= \boldsymbol{Q}^k - 
     \frac{\boldsymbol{\delta}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k + \boldsymbol{Q}^k\boldsymbol{\gamma}^k (\boldsymbol{\delta^k})^T}
     {(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k} 
     + \bigg(1 + \frac{(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k}{(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k}\bigg)
