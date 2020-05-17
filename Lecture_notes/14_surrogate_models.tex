@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization 01: Introduction} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Constrained Optimization]{Numerical Optimization 12: Constrained Optimization} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,162 +135,127 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Syllabus}
-\begin{frame}{Syllabus}
+\section{Constrained Optimization}
+\begin{frame}{Noisy Descent}
+Fitting Surrogate Models
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
+\end{figure}   
 
+\end{frame}
+
+\section{Constraints}
+\begin{frame}{Constraints}
+Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
+
+\begin{itemize}
+    \item equality constraints, $h(x)=0$ 
+    \item inequality constraints, $g(x) \leq 0$
     
-\begin{columns}
-
-\begin{column}{.6\textwidth}
-We have two goals: 
-\begin{itemize}
-    \item Learn Julia programming
-    \item Understand the optimization methods
 \end{itemize}
-Subjects to be covered
-\begin{itemize}
-    \item Julia programming
-    \item Local Optimization
-    \begin{itemize}
-        \item Derivatives and Gradients
-        \item Bracketing
-        \item First/second-Order optimization
-        \item Gradient free methods
-        \item Stochastic methods
-    \end{itemize}
-    \item Global Optimization
-    \item Sampling Plans
-    \item Surrogate Optimization
-    \item Expression Optimization
 
-\end{itemize}
-\end{column}
-\pause
-\begin{column}{.4\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=30mm]{Figs/algo_opt.jpg}
-\end{figure}
-Virtual Meet twice a week (~90 minutes each time).\\
-\begin{itemize}
-    \item review of homework (20-30 mins)
-    \item lecture (30-50 mins)
-    \item coding (20-30 mins)
-\end{itemize}
-\end{column}
-
-\end{columns}
+Any optimization problem can be rewritten using these constraints
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
+    {s.t.}~~~~ h_i(x) = 0 \\
+    ~~~~~~~~~ g_j(x) = 0
+\end{gather*}
 
 \end{frame}
 
-\section{Why Optimization?}
-\begin{frame}{Why optimization}
-\begin{columns}
-\begin{column}{.55\textwidth}
-A typical optimization problem is to 
+\section{Transformations to Remove Constraints}
+\begin{frame}{Transformations to Remove Constraints}
+In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
+
 \begin{equation*}
-\begin{split}
-    \textrm{minimize} &~~ f(x)\\
-    \textrm{subject to} &~~ x \in X    
-\end{split}
+x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
 \end{equation*}
-A design point ($x$) can be represented as a vector of values
-corresponding to different design variables.
-\end{column}
 
-\begin{column}{.45\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/solution-space.jpeg}
-\end{figure}
-\end{column}
-\end{columns}
+Below is an example
+\begin{gather*}
+    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
+    {s.t.}~~~~ 2\leq x \leq 6 \\
+\end{gather*}
+Can be transformed to 
+\begin{gather*}
+    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
+    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
+\end{gather*}
 
-A \textcolor{blue}{necessary condition?} for $f(x)$ reaches the minimum is that \textcolor{blue}{$f`(x)=0$}.
 \end{frame}
 
+\section{Lagrange Multipliers}
+\begin{frame}{Lagrange Multipliers}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
+    {s.t.}~~~~ h_i(x) = 0 
+\end{gather*}
 
-\begin{frame}{Optimization is hard!}
+where $f$ and $h$ have continuous partial derivatives.
+
+We can formulate the Lagrangian, which is a function of the design variables,
+\begin{gather*}
+    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
+\end{gather*}
+
+Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
+
+\end{frame}
+
+\begin{frame}{Lagrange Multipliers to a single equality condition}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
+    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
+\end{gather*}
+
+We can formulate the Lagrangian, 
+\begin{equation*}
+    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\end{equation*}
+We compute
 \begin{itemize}
-    \item $f`(x)=0$ is not a sufficient condition.
-\begin{figure}
-\centering
-\includegraphics[width=80mm]{Figs/minimum.jpeg}
-\end{figure}
-    \item There exist many points where {$f`(x)=0$}.
-\begin{figure}
-\centering
-\includegraphics[width=60mm]{Figs/multi-minima.jpeg}
-\end{figure}
-    \item $f(x)$ and $f`(x)$ are hard to evaluate.
-
+    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
+    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
+    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
 \end{itemize}
+
 \end{frame}
 
 
-\section{Why Julia?}
-\begin{frame}{Why Julia?}
-\textcolor{red}{Run Julia at } \url{https://www.juliabox.com}
+\begin{frame}{Lagrange Multipliers to multiple equality conditions}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
+    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
+\end{gather*}
 
-\begin{columns}
-
-\begin{column}{.5\textwidth}
+We can formulate the Lagrangian, 
+\begin{equation*}
+    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\end{equation*}
+We compute
 \begin{itemize}
-    \item Math-friendly
-    \item Looks like Python 
-    \item Runs like C/Fortran
-    \item Growing ecosystem
+    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
+    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
+    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
 \end{itemize}
-\end{column}
 
-\begin{column}{.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/julia.png}
-\end{figure}
-\end{column}
-\end{columns}
-\begin{figure}
-\centering
-\includegraphics[width=90mm]{Figs/julia-comp.png}
-\end{figure}
 \end{frame}
-
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Optimization in engineering is the process of finding the best system design subject to a set of constraints.
-        \item Optimization can be transformed to a math problem but it is sometimes hard to solve
-        \item We will extensively using the Julia language to learn how to solve the optimization numerically
+        \item Constraints are requirements on the design points that a solution must satisfy.
+        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
+        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
+        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
     \end{itemize}
 \end{frame}
-
-
-\section{Homework}
-\begin{frame}{Homework}
-In Julia, write the following trial functions, make the contour plots and analyze their minima behavior.
-\begin{itemize}
-    \item Booth's function
-    \begin{equation*}
-        f(x_1, x_2) = (x_1 + 2x_2 -7)^2 + (2x_1 + x_2 -5)^2
-    \end{equation*}
-
-    \item Barnin function
-    \begin{equation*}
-        f(x_1, x_2) = a(x_2 - bx_1^2 + cx_1 - r)^2 + s(1-t)cos(x_1) +s
-    \end{equation*}
-    where $a=1, b=5.1/(4\pi^2), c=5/\pi, r=6, s=10, t=1/8\pi$.
-    
-    \item Rosenbrock's Banana function
-    \begin{equation*}
-        f(x_1, x_2) = (a-x_1)^2 + b(x_2-x_1^2)^2
-    \end{equation*}
-    where $a=1, b=5$.
-    
-\end{itemize}
-More functions can be found at \url{https://en.wikipedia.org/wiki/Test_functions_for_optimization}
-\end{frame}
-
 \end{document}
 

@@ -196,11 +196,16 @@ Different matrix norms can be applied here to give different quasi-Newton method
 
 \section{The DFP method}
 \begin{frame}{The Davidon-Fletcher-Powell (DFP) method}
-Davidon proposed the following relation between $\boldsymbol{Q}^k$ and $\boldsymbol{Q}^{k+1}$
+%\begin{itemize}
+%    \item $\boldsymbol{Q}$ is symmetric and positive definite.
+%    \item If $f(x) = \frac{1}{2} \boldsymbol{x}^T \boldsymbol{Ax} + \boldsymbol{b}^T\boldsymbol{x} + c$, then $Q=\boldsymbol{A}^{-1}$. Thus DFT is equivalent to %the conjugate gradient method
+%    \item For high dimensional problems, the storing of $\boldsymbol{Q}$ is more demanding than CG.
+%\end{itemize}
+Davidon proposed a relation to ensures that $\boldsymbol{Q}$ is symmetric.
 \begin{equation*}
     \boldsymbol{Q}^{k+1} = \boldsymbol{Q}^{k} + a uu^T + bvv^T
 \end{equation*}
-According to the secant condition
+According to the \textcolor{blue}{secant condition}
 \begin{equation*}
     \boldsymbol{Q}^{k} \boldsymbol{\delta}^k + a uu^T\boldsymbol{\delta}^k + bvv^T\boldsymbol{\delta}^k = \boldsymbol{\gamma}^{k} 
 \end{equation*}
@@ -221,13 +226,6 @@ where
     {(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k} 
     + \frac{\boldsymbol{\delta}(\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
 \end{gather*}
-
-%The update for $\boldsymbol{Q}$ in the DFP method has three properties:
-%\begin{itemize}
-%    \item $\boldsymbol{Q}$ is symmetric and positive definite.
-%    \item If $f(x) = \frac{1}{2} \boldsymbol{x}^T \boldsymbol{Ax} + \boldsymbol{b}^T\boldsymbol{x} + c$, then $Q=\boldsymbol{A}^{-1}$. Thus DFT is equivalent to %the conjugate gradient method
-%    \item For high dimensional problems, the storing of $\boldsymbol{Q}$ is more demanding than CG.
-%\end{itemize}
 
 \begin{thebibliography}{10}
 \bibitem{mueller92}
@@ -254,37 +252,76 @@ The minimize condition is,
     \textrm{s.t.~~~~~} \boldsymbol{H} = \boldsymbol{H}^T,~~~~    \boldsymbol{H \gamma}^k = \boldsymbol{\delta}^k
 \end{gather*}
 
-\begin{gather*}
-    \boldsymbol{Q}^{k+1} = \boldsymbol{Q}^k + 
-    \frac{\boldsymbol{\delta}\boldsymbol{\gamma}^T \boldsymbol{Q} + \boldsymbol{Q\gamma \delta}^T}
-    {\boldsymbol{\delta}^T \boldsymbol{\gamma}} 
-    + \bigg(1 + \frac{\boldsymbol{\gamma}^T \boldsymbol{Q \gamma}}{\boldsymbol{\delta}^T \boldsymbol{Q}}    \bigg)
-    \frac{\boldsymbol{\delta}\boldsymbol{\delta}^T}{\boldsymbol{\delta}^T \boldsymbol{\gamma}}
-\end{gather*}
+\begin{equation*}
+    \boldsymbol{Q}^{k+1} = \boldsymbol{Q}^k - 
+    \frac{\boldsymbol{\delta}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k + \boldsymbol{Q}^k\boldsymbol{\gamma}^k (\boldsymbol{\delta^k})^T}
+    {(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k} 
+    + \bigg(1 + \frac{(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k}{(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k}\bigg)
+    \frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
+    %\frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^T)^k } { (\boldsymbol{\delta}^T)^k \boldsymbol{\gamma}^k}    
+    
+\end{equation*}
+
+
 
 BFGS does better than DFP with approximate line search. 
+\end{frame}
+
+\section{The Broyden Class}
+\begin{frame}{The Broyden Class}
+Comparing the two solutions from DFP and BFGS,
+\begin{equation*}
+\begin{cases}
+    \textrm{DFP:}~~  \boldsymbol{Q}^{k+1}  &= \boldsymbol{Q}^k - 
+    \frac{ \boldsymbol{Q}^k \boldsymbol{\gamma}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k }
+    {(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k} 
+    + \frac{\boldsymbol{\delta}(\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}\\
+
+    \textrm{BFGS:}~     \boldsymbol{Q}^{k+1} &= \boldsymbol{Q}^k - 
+    \frac{\boldsymbol{\delta}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k + \boldsymbol{Q}^k\boldsymbol{\gamma}^k (\boldsymbol{\delta^k})^T}
+    {(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k} 
+    + \bigg(1 + \frac{(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k}{(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k}\bigg)
+    \frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}\\
+    & = \boldsymbol{Q}^k - 
+        \frac{ \boldsymbol{Q}^k \boldsymbol{\gamma}^k (\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k }
+    {(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k} + 
+    \frac{\boldsymbol{\delta}(\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
+    + [(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k  \boldsymbol{\delta}^k] \boldsymbol{v^k}(\boldsymbol{v^k})^T
+
+\end{cases}
+\end{equation*}
+where
+\begin{equation*}
+    \boldsymbol{v^k} = \frac{\boldsymbol{\gamma}^k }{(\boldsymbol{\gamma}^k) ^T \boldsymbol{\delta}^k } -
+    \frac{\boldsymbol{Q}^k\boldsymbol{\delta}^k }{(\boldsymbol{\delta}^k) ^T \boldsymbol{Q}^k\boldsymbol{\delta}^k }  
+\end{equation*}
+
+In fact, there exists a family of solutions
+\begin{equation*}
+    \boldsymbol{Q}^k = (1-\lambda) \boldsymbol{Q}^k_{\textrm{BFGS}} + \lambda \boldsymbol{Q}^k_{\textrm{DFP}}
+\end{equation*}
+
+Changing $\lambda$ from 0 to 1 is actually varying the $u$ and $v$ in 
+
+\begin{equation*}
+    \boldsymbol{Q}^{k+1} = \boldsymbol{Q}^{k} + a uu^T + bvv^T
+\end{equation*}
 
 \end{frame}
 
-\section{L-BFGS method}
-\begin{frame}{Limited-memory BFGS}
+\section{The L-BFGS method}
+\begin{frame}{The Limited-memory BFGS}
 BFGS still uses an $n \times n$ dense matrix, which is a problem for storage of the hessian when dealing with very large scale problems.
-The L-BFGS method can be used to approximate BFGS with a relatively cheaper solution.
-
-In L-BFGS, it stores the last $m$ values for $\boldsymbol{\delta}$ and $\boldsymbol{\gamma}$ rather than the entire inverse of $H$.
+Inspecting the following update, can we do something smart?
 \begin{gather*}
-    \boldsymbol{Q} \leftarrow \boldsymbol{Q} - 
-    \frac{\boldsymbol{\delta}\boldsymbol{\gamma^T} \boldsymbol{Q} + \boldsymbol{Q\gamma \delta}^T}
-    {\boldsymbol{\delta}^T \boldsymbol{\gamma}} 
-    + \bigg(1 + \frac{\boldsymbol{\gamma^T} \boldsymbol{Q} \gamma}{\boldsymbol{\delta}^T \boldsymbol{Q}}    \bigg)
-    \frac{\boldsymbol{\delta}\boldsymbol{\delta}^T}{\boldsymbol{\delta}^T \boldsymbol{\gamma}}
+    \boldsymbol{Q}^{k+1} = \boldsymbol{Q}^{k} + a uu^T + bvv^T
 \end{gather*}
-
-BFGS does better than DFP with approximate line search but still uses an $n \times n$ dense matrix. 
+In L-BFGS, it stores the last $m$ values for $\boldsymbol{\delta}$ and $\boldsymbol{\gamma}$ rather than the entire inverse of $H$.
+\vspace{5cm}
 
 \end{frame}
 
-\begin{frame}{Comparison of various quasi-Newton algos}
+\begin{frame}{Comparison of various quasi-Newton algorithms}
 \begin{figure}
 \centering
 \includegraphics[width=80mm]{Figs/quasi-newton.jpeg}
