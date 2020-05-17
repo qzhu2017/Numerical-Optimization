@@ -240,7 +240,7 @@ where
 
 \section{BFGS method}
 \begin{frame}{The Broyden-Fletcher-Goldfarb-Shanno (BFGS) method}
-In the BFGS algorithm, it does not approximate $\boldsymbol{Q^k}$, but handles $\boldsymbol{H^k} = \boldsymbol{Q^k}^{-1}$
+In the BFGS algorithm, it does not approximate $\boldsymbol{Q}^k$, but handles $\boldsymbol{H}^k = (\boldsymbol{Q}^k)^{-1}$
 
 \begin{equation*}
     \boldsymbol{H}^{k+1}\boldsymbol{\gamma}^{k} = \boldsymbol{\delta}^{k}    
@@ -258,9 +258,7 @@ The minimize condition is,
     {(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k} 
     + \bigg(1 + \frac{(\boldsymbol{\gamma}^k)^T \boldsymbol{Q}^k \boldsymbol{\gamma}^k}{(\boldsymbol{\delta}^k)^T \boldsymbol{Q}^k}\bigg)
     \frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
-    
 \end{equation*}
-
 
 BFGS does better than DFP with approximate line search. 
 \end{frame}

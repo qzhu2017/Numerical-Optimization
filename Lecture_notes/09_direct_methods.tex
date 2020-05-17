@@ -193,7 +193,7 @@ the direction of $\boldsymbol{x}^{n+1}-\boldsymbol{x}^1$.
 
 \section{Powell's method}
 \begin{frame}{Powell's method}
-This algorithm maintains a list of search directions $\boldsymbol{u^1, \cdots, u^n}$, which are initially the basis vectors.
+This algorithm maintains a list of search directions $\boldsymbol{u}^1, \cdots, \boldsymbol{u}^n$, which are initially the basis vectors.
 Starting at $\boldsymbol{x}^1$, Powell's method conduct a line search for each direction, updating the design point each time,
 Then shift each $u$ by one index and drop $u^1$.
 The last direction is replaced with the direction of $\boldsymbol{x}^{n+1} - \boldsymbol{x}^1$.
@@ -203,9 +203,9 @@ The last direction is replaced with the direction of $\boldsymbol{x}^{n+1} - \bo
 \begin{column}{.7\textwidth}
 \begin{equation*}
 \begin{split}
-		\boldsymbol{x}^{i+1} &\leftarrow ~{\textrm{line search}} (f, \boldsymbol{x}^i, \boldsymbol{u}^i) ~{\textrm{for all i in }} \{1, \cdots, n\}\\
-		\boldsymbol{u}^{i+1} &\leftarrow \boldsymbol{u}^{i+1} ~ {\textrm{for all i in } \{1, \cdots, n-1\}}\\
-    \boldsymbol{u}^{n} &\leftarrow \boldsymbol{x}^{n+1} - \boldsymbol{x}^    
+		\boldsymbol{x}^{i+1} &\leftarrow ~{\textrm{line search}} (f, \boldsymbol{x}^i, \boldsymbol{u}^i) ~{\textrm{for all}} i in 1, \cdots, n\\
+		\boldsymbol{u}^{i+1} &\leftarrow \boldsymbol{u}^{i+1} \\~ {\textrm{for all}} i in 1, \cdots, n-1\\
+    \boldsymbol{u}^{n} &\leftarrow \boldsymbol{x}^{n+1} - \boldsymbol{x}^n    
 \end{split}
 \end{equation*}
 \end{column}
