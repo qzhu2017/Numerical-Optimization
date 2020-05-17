@@ -1,0 +1,231 @@
+\documentclass{beamer}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\hypersetup{colorlinks=true, citecolor=blue, filecolor=blue, linkcolor=blue, urlcolor=blue}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    %numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+%\usepackage {tikz}
+\usepackage{tkz-graph}
+\GraphInit[vstyle = Shade]
+\tikzset{
+  LabelStyle/.style = { rectangle, rounded corners, draw,
+                        minimum width = 2em, fill = yellow!50,
+                        text = red, font = \bfseries },
+  VertexStyle/.append style = { inner sep=5pt,
+                                font = \normalsize\bfseries},
+  EdgeStyle/.append style = {->, bend left} }
+\usetikzlibrary {positioning}
+%\usepackage {xcolor}
+\definecolor {processblue}{cmyk}{0.96,0,0,0}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Gradient Descent]{Numerical Optimization 10: Stochastic Methods} %
+
+\author{Qiang Zhu} % Your name
+\institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+University of Nevada Las Vegas\\ % Your institution for the title page
+\medskip
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+
+\section{Noisy Descent}
+\begin{frame}{Noisy Descent}
+Adding stochasticity to gradient descent can be beneficial in large nonlinear optimization problems. Saddle points, where the gradient is very close to zero, can cause descent methods to select step sizes that are too small to be useful. One approach is to add Gaussian noise at each descent step
+
+\begin{equation*}
+    \boldsymbol{x}^{k+1} \leftarrow \boldsymbol{x}^k - \alpha^k \boldsymbol{g}^k + \boldsymbol{\epsilon}^k
+\end{equation*}
+
+where $\boldsymbol{\epsilon}(k)$ is zero-mean Gaussian noise with standard deviation $\sigma$. The amount of noise is typically reduced over time. The standard deviation of the noise is typically a decreasing sequence $\sigma(k)$ such as $1/k$. 
+
+\begin{figure}
+\centering
+\includegraphics[width=40mm]{Figs/sgd.jpeg}
+\end{figure}   
+
+\end{frame}
+
+\section{Simulated Annealing}
+\begin{frame}{Simulated Annealing}
+Simulated annealing borrows inspiration from metallurgy. 
+\textcolor{blue}{Temperature} is used to control the degree of stochasticity during the randomized search.
+\begin{itemize}
+    \item $t$ starts high, allowing the process to freely move , with the hope of finding a good region with the best local minimum. 
+
+    \item $t$ is then slowly brought down, reducing the stochasticity and forcing the search to converge to a minimum. Simulated annealing is often used on functions with many local minima due to its ability to escape local minima.
+    
+\end{itemize}
+
+
+At every iteration, a candidate transition from $\boldsymbol{x}$ to $\boldsymbol{x}′$ is sampled from a transition distribution $T$ and is accepted with \textcolor{blue}{probability}
+
+\begin{equation*}
+\begin{cases}
+1 & \textrm{if } \Delta y \leq 0\\
+\min(\exp(-\Delta y/t), 1) & \textrm{if }\Delta y >0
+\end{cases}
+\end{equation*}
+
+where $\Delta y = f(\boldsymbol{x})- f(\boldsymbol{x`})$
+
+\end{frame}
+
+
+\section{Cross-Entropy Method}
+\begin{frame}{Cross-Entropy Method}
+This probability distribution, often called a \textcolor{blue}{proposal distribution}, is used to propose new samples for the next iteration. At each iteration, we sample from the proposal distribution and then update the proposal distribution to fit a collection of the best samples. 
+
+It requires choosing a family of distributions parameterized by $\theta$, such as multivariate normal distributions with \textcolor{blue}{a mean vector and a covariance matrix}. The algorithm also requires us to specify the number of elite samples, $m_\textrm{elite}$ , to use when fitting the parameters for the next iteration.
+
+\begin{equation*}
+\begin{split}
+    \boldsymbol{\mu}^{k+1} &= \frac{1}{m_{\textrm{elite}}} \sum_{i=1}^{m_{\textrm{elite}}} \boldsymbol{x}^i\\
+    \Sigma^{k+1} &= \frac{1}{m_{\textrm{elite}}} \sum_{i=1}^{m_{\textrm{elite}}} (\boldsymbol{x}^i - \boldsymbol{\mu}^{k+1})(\boldsymbol{x}^i - \boldsymbol{\mu}^{k+1})^T
+\end{split}
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Cross-Entropy Method}
+This probability distribution, often called a \textcolor{blue}{proposal distribution}, is used to propose new samples for the next iteration. At each iteration, we sample from the proposal distribution and then update the proposal distribution to fit a collection of the best samples. 
+
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/Cross-entropy.jpeg}
+\end{figure}   
+\end{frame}
+
+\section{Covariance Matrix Adaptation}
+\begin{frame}{Covariance Matrix Adaptation}
+Covariance matrix adaptation maintains a mean vector $\boldsymbol{\mu}$, a covariance matrix $\boldsymbol{\Sigma}$, and an additional step-size scalar $\delta$. The covariance matrix only increases or decreases in a single direction with every iteration, whereas the step-size scalar is adapted to control the overall spread of the distribution. At every iteration, m designs are sampled from the multivariate Gaussian
+\begin{equation*}
+    \boldsymbol{x} \propto \mathcal{N} (\boldsymbol{\mu}, \sigma^2 \Sigma)
+\end{equation*}
+
+The designs are then sorted according to their objective function values such that $f(x^1) \leq f(x^2) \leq \cdots \leq f(x^m)$. A new mean vector  $\boldsymbol{\mu}^{k+1}$ is formed using a weighted average of the sampled designs:
+
+\begin{gather*}
+    \boldsymbol{\mu}^{k+1} \leftarrow \sum_{i=1}^m w_i \boldsymbol{x}^i\\
+    \sum_i^m w_i = 1 ~~~~ w_1>w_2>\cdots>w_m>0    
+\end{gather*}
+
+\end{frame}
+
+
+\section{Summary}
+\begin{frame}{Summary}
+    \begin{itemize}
+        \item Stochastic methods employ random numbers during the optimization process
+        \item Simulated annealin guses a temperature that controls random exploration and which is reduced over time to converge on a local minimum.
+        \item The cross-entropy method and evolution strategies maintain proposal distributions from which they sample in order to inform updates.
+        \item Covariance matrix adaptation is a robust and sample-efficient optimizer that maintains a multivariate Gaussian proposal distribution with a full covariance matrix.
+    \end{itemize}
+\end{frame}
+\end{document}
+

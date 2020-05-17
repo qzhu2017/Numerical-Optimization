@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization 01: Introduction} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Gradient Descent]{Numerical Optimization 09: Direct Methods} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,162 +135,153 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Syllabus}
-\begin{frame}{Syllabus}
+\section{Direct methods without gradient}
+\begin{frame}{Direct method}
+Direct methods rely solely on the objective function $f$. They are usually called
+\begin{itemize}
+    \item zero-orther
+    \item black box
+    \item pattern search
+    \item derivative free
+\end{itemize}
 
-    
+The most important feature is that they do not rely on derivative information. 
+They use other criteria to choose the next search direction to judge if the search is converged.
+
+\end{frame}
+
+\section{Cyclic Coordinate Search}
+\begin{frame}{Cyclic Coordinate Search}
+This method simply alternate coordinate directions for its line search. The search starts from an initial $\boldsymbol{x}^1$ and optimize the first input.
 \begin{columns}
 
 \begin{column}{.6\textwidth}
-We have two goals: 
-\begin{itemize}
-    \item Learn Julia programming
-    \item Understand the optimization methods
-\end{itemize}
-Subjects to be covered
-\begin{itemize}
-    \item Julia programming
-    \item Local Optimization
-    \begin{itemize}
-        \item Derivatives and Gradients
-        \item Bracketing
-        \item First/second-Order optimization
-        \item Gradient free methods
-        \item Stochastic methods
-    \end{itemize}
-    \item Global Optimization
-    \item Sampling Plans
-    \item Surrogate Optimization
-    \item Expression Optimization
+\begin{equation*}
+    \boldsymbol{x}^2 = \underset{x_1}{\arg \min} f(x_1, x_2^1, x_3^1, \cdots, x_n^1) 
+\end{equation*}
 
-\end{itemize}
+Then, it moves to the next coordinate,
+\begin{equation*}
+    \boldsymbol{x}^3 = \underset{x_1}{\arg \min} f(x_1^2, x_2, x_3^2, \cdots, x_n^2) 
+\end{equation*}
+This process is equivalent to doing a sequence of line searches along the set of $n$ basis vectors.
+It is terminated after no significant improvement is made.
 \end{column}
 \pause
 \begin{column}{.4\textwidth}
 \begin{figure}
 \centering
-\includegraphics[width=30mm]{Figs/algo_opt.jpg}
-\end{figure}
-Virtual Meet twice a week (~90 minutes each time).\\
-\begin{itemize}
-    \item review of homework (20-30 mins)
-    \item lecture (30-50 mins)
-    \item coding (20-30 mins)
-\end{itemize}
+\includegraphics[width=30mm]{Figs/coordinate.jpeg}
+\end{figure} 
 \end{column}
-
 \end{columns}
 
 \end{frame}
 
-\section{Why Optimization?}
-\begin{frame}{Why optimization}
+\begin{frame}{Acceleration}
+Similar to the momentum method in the gradient descent, the cyclic method can be augmented with an acceleration step to help traverse diagonal valleys. For each full cycle starting with $\boldsymbol{x}^1$ from 1 to $n$, an additional line search is conducted along with 
+the direction of $\boldsymbol{x}^{n+1}-\boldsymbol{x}^1$.
+
+\begin{figure}
+\centering
+\includegraphics[width=60mm]{Figs/coordinate-improved.jpeg}
+\end{figure} 
+
+\end{frame}
+
+
+
+\section{Powell's method}
+\begin{frame}{Powell's method}
+This algorithm maintains a list of search directions $\boldsymbol{u^1, \cdots, u^n}$, which are initially the basis vectors.
+Starting at $\boldsymbol{x}^1$, Powell's method conduct a line search for each direction, updating the design point each time,
+Then shift each $u$ by one index and drop $u^1$.
+The last direction is replaced with the direction of $\boldsymbol{x}^{n+1} - \boldsymbol{x}^1$.
+
+
 \begin{columns}
-\begin{column}{.55\textwidth}
-A typical optimization problem is to 
+\begin{column}{.7\textwidth}
 \begin{equation*}
 \begin{split}
-    \textrm{minimize} &~~ f(x)\\
-    \textrm{subject to} &~~ x \in X    
+    \boldsymbol{x}^{i+1} &\leftarrow ~\textrm{line search} (f, \boldsymbol{x}^i, \boldsymbol{u}^i) ~\textrm{for all i in } \{1, \cdots, n\}\\
+    \boldsymbol{u}^{i+1} &\leftarrow \boldsymbol{u}^{i+1} ~ \textrm{for all i in } \{1, \cdots, n-1\}\\
+    \boldsymbol{u}^{n} &\leftarrow \boldsymbol{x}^{n+1} - \boldsymbol{x}^    
 \end{split}
 \end{equation*}
-A design point ($x$) can be represented as a vector of values
-corresponding to different design variables.
 \end{column}
 
-\begin{column}{.45\textwidth}
+%\pause
+\begin{column}{.3\textwidth}
 \begin{figure}
 \centering
-\includegraphics[width=40mm]{Figs/solution-space.jpeg}
-\end{figure}
+\includegraphics[width=30mm]{Figs/powell.jpeg}
+\end{figure} 
 \end{column}
+
 \end{columns}
+%The process is repeated until convergence.
 
-A \textcolor{blue}{necessary condition?} for $f(x)$ reaches the minimum is that \textcolor{blue}{$f`(x)=0$}.
+Powell showed that for quadratic functions, after $k$ full iterations the last $k$ direction will be mutually conjugate.
+It is recommended to reset every $n$ or $n+1$ iterations.
+
 \end{frame}
 
+\section{Nelder-Mead Simplex Method}
+\begin{frame}{Nelder-Mead Simplex Method}
 
-\begin{frame}{Optimization is hard!}
-\begin{itemize}
-    \item $f`(x)=0$ is not a sufficient condition.
-\begin{figure}
-\centering
-\includegraphics[width=80mm]{Figs/minimum.jpeg}
-\end{figure}
-    \item There exist many points where {$f`(x)=0$}.
-\begin{figure}
-\centering
-\includegraphics[width=60mm]{Figs/multi-minima.jpeg}
-\end{figure}
-    \item $f(x)$ and $f`(x)$ are hard to evaluate.
-
-\end{itemize}
-\end{frame}
-
-
-\section{Why Julia?}
-\begin{frame}{Why Julia?}
-\textcolor{red}{Run Julia at } \url{https://www.juliabox.com}
-
+The Nelder-Mead simplex method uses a simplex to traverse the space in search
+of a minimum. A simplex is a $n+1$-vertices polyhedron in $n$-dimensional space. 
 \begin{columns}
-
-\begin{column}{.5\textwidth}
+\begin{column}{0.4 \textwidth}
 \begin{itemize}
-    \item Math-friendly
-    \item Looks like Python 
-    \item Runs like C/Fortran
-    \item Growing ecosystem
+    \item $x_h$, pt of highest $f$, 
+    \item $x_s$, pt of 2nd highest $f$, 
+    \item $x_l$, pt of lowest $f$, 
+    \item $\Bar{x}$, mean pt  excluding $x_h$.
+\end{itemize}
+\end{column}
+\begin{column}{0.6 \textwidth}
+\begin{itemize}
+    \item Reflection. $x_r = \Bar{x} + (\Bar{x} - x_h)$, 
+    \item Expansion. $x_e = \Bar{x} + 2(x_r - \Bar{x})$, 
+    \item Contraction. $x_c = \Bar{x} + 0.5(x_h - \Bar{x})$, 
+    \item Shrinkage, halving the distance to $x_l$.
 \end{itemize}
 \end{column}
 
-\begin{column}{.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/julia.png}
-\end{figure}
-\end{column}
 \end{columns}
+
 \begin{figure}
 \centering
-\includegraphics[width=90mm]{Figs/julia-comp.png}
-\end{figure}
+\includegraphics[width=120mm]{Figs/simplex.jpeg}
+\end{figure}   
 \end{frame}
 
+
+\begin{frame}{Nelder-Mead Simplex Algorithm}
+
+\begin{figure}
+\centering
+\includegraphics[width=110mm]{Figs/simplex_algo.jpeg}
+\end{figure}   
+\end{frame}
+
+\begin{frame}{Nelder-Mead Simplex method in practice}
+
+\begin{figure}
+\centering
+\includegraphics[width=110mm]{Figs/simplex-performance.jpeg}
+\end{figure}   
+\end{frame}
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Optimization in engineering is the process of finding the best system design subject to a set of constraints.
-        \item Optimization can be transformed to a math problem but it is sometimes hard to solve
-        \item We will extensively using the Julia language to learn how to solve the optimization numerically
+        \item Direct methods rely solely on the objective function and do not use derivative information.
+        \item Cyclic coordinate search optimizes one coordinate direction at a time.
+        \item Powell’s method adapts the set of search directions based on the direction of progress.
+        \item The Nelder-Mead simplex method uses a simplex to search the design space, adaptively expanding and contracting the size of the simplex in response to evaluations of the objective function.
     \end{itemize}
 \end{frame}
-
-
-\section{Homework}
-\begin{frame}{Homework}
-In Julia, write the following trial functions, make the contour plots and analyze their minima behavior.
-\begin{itemize}
-    \item Booth's function
-    \begin{equation*}
-        f(x_1, x_2) = (x_1 + 2x_2 -7)^2 + (2x_1 + x_2 -5)^2
-    \end{equation*}
-
-    \item Barnin function
-    \begin{equation*}
-        f(x_1, x_2) = a(x_2 - bx_1^2 + cx_1 - r)^2 + s(1-t)cos(x_1) +s
-    \end{equation*}
-    where $a=1, b=5.1/(4\pi^2), c=5/\pi, r=6, s=10, t=1/8\pi$.
-    
-    \item Rosenbrock's Banana function
-    \begin{equation*}
-        f(x_1, x_2) = (a-x_1)^2 + b(x_2-x_1^2)^2
-    \end{equation*}
-    where $a=1, b=5$.
-    
-\end{itemize}
-More functions can be found at \url{https://en.wikipedia.org/wiki/Test_functions_for_optimization}
-\end{frame}
-
 \end{document}
 

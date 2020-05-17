@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Optimization]{Numerical Optimization 01: Introduction} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Sampling Plans]{Numerical Optimization 13: Sampling Plans} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,162 +135,68 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Syllabus}
-\begin{frame}{Syllabus}
-
-    
-\begin{columns}
-
-\begin{column}{.6\textwidth}
-We have two goals: 
+\section{Sampling}
+\begin{frame}{Optimization with expensive function evaluations }
+For many optimization problems, function evaluations can be quite expensive. 
 \begin{itemize}
-    \item Learn Julia programming
-    \item Understand the optimization methods
-\end{itemize}
-Subjects to be covered
-\begin{itemize}
-    \item Julia programming
-    \item Local Optimization
-    \begin{itemize}
-        \item Derivatives and Gradients
-        \item Bracketing
-        \item First/second-Order optimization
-        \item Gradient free methods
-        \item Stochastic methods
-    \end{itemize}
-    \item Global Optimization
-    \item Sampling Plans
-    \item Surrogate Optimization
-    \item Expression Optimization
+    \item an aircraft design may require a wind tunnel test
+    \item deep learning hyperparameters may require a week of GPU training
+    \item $\cdots$
+\end{itemize} 
+A common approach for optimizing in these contexts is to build a \textcolor{blue}{surrogate model},
+Further evaluations of the true objective function can be used to improve the model. Fitting such models requires an initial set of points, ideally points that are space-filling; that is, points that cover the region as well as possible. 
+\end{frame}
 
-\end{itemize}
-\end{column}
-\pause
-\begin{column}{.4\textwidth}
+\section{Full Factorial}
+\begin{frame}{Full Factorial}
+The full factorial sampling plan places a grid of evenly spaced points over the search space.
+\begin{itemize}
+    \item a lower/upper-bound vector $a, b$ such that $a_i \leq x_i \leq b_i$
+    \item $m_i$ samples in each $x_i$ separated by a distance $(b_i-a_i)/(m_i-1)$
+\end{itemize} 
 \begin{figure}
 \centering
-\includegraphics[width=30mm]{Figs/algo_opt.jpg}
-\end{figure}
-Virtual Meet twice a week (~90 minutes each time).\\
-\begin{itemize}
-    \item review of homework (20-30 mins)
-    \item lecture (30-50 mins)
-    \item coding (20-30 mins)
-\end{itemize}
-\end{column}
-
-\end{columns}
+\includegraphics[width=80mm]{Figs/grid_search.jpeg}
+\end{figure} 
 
 \end{frame}
 
-\section{Why Optimization?}
-\begin{frame}{Why optimization}
-\begin{columns}
-\begin{column}{.55\textwidth}
-A typical optimization problem is to 
-\begin{equation*}
-\begin{split}
-    \textrm{minimize} &~~ f(x)\\
-    \textrm{subject to} &~~ x \in X    
-\end{split}
-\end{equation*}
-A design point ($x$) can be represented as a vector of values
-corresponding to different design variables.
-\end{column}
+\section{Random Sampling}
+\begin{frame}{Random Sampling}
+In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
 
-\begin{column}{.45\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/solution-space.jpeg}
-\end{figure}
-\end{column}
-\end{columns}
-
-A \textcolor{blue}{necessary condition?} for $f(x)$ reaches the minimum is that \textcolor{blue}{$f`(x)=0$}.
 \end{frame}
 
 
-\begin{frame}{Optimization is hard!}
-\begin{itemize}
-    \item $f`(x)=0$ is not a sufficient condition.
-\begin{figure}
-\centering
-\includegraphics[width=80mm]{Figs/minimum.jpeg}
-\end{figure}
-    \item There exist many points where {$f`(x)=0$}.
-\begin{figure}
-\centering
-\includegraphics[width=60mm]{Figs/multi-minima.jpeg}
-\end{figure}
-    \item $f(x)$ and $f`(x)$ are hard to evaluate.
+\section{Uniform Projection Plans}
+\begin{frame}{Uniform Projection Plans}
+In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
 
-\end{itemize}
+\end{frame}
+
+\section{Stratified Sampling}
+\begin{frame}{Uniform Projection Plans}
+In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
+
+
 \end{frame}
 
 
-\section{Why Julia?}
-\begin{frame}{Why Julia?}
-\textcolor{red}{Run Julia at } \url{https://www.juliabox.com}
+\section{Space-Filling Metrics}
+\begin{frame}{Uniform Projection Plans}
+In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
 
-\begin{columns}
 
-\begin{column}{.5\textwidth}
-\begin{itemize}
-    \item Math-friendly
-    \item Looks like Python 
-    \item Runs like C/Fortran
-    \item Growing ecosystem
-\end{itemize}
-\end{column}
-
-\begin{column}{.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=40mm]{Figs/julia.png}
-\end{figure}
-\end{column}
-\end{columns}
-\begin{figure}
-\centering
-\includegraphics[width=90mm]{Figs/julia-comp.png}
-\end{figure}
 \end{frame}
-
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Optimization in engineering is the process of finding the best system design subject to a set of constraints.
-        \item Optimization can be transformed to a math problem but it is sometimes hard to solve
-        \item We will extensively using the Julia language to learn how to solve the optimization numerically
+        \item Constraints are requirements on the design points that a solution must satisfy.
+        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
+        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
+        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
     \end{itemize}
 \end{frame}
-
-
-\section{Homework}
-\begin{frame}{Homework}
-In Julia, write the following trial functions, make the contour plots and analyze their minima behavior.
-\begin{itemize}
-    \item Booth's function
-    \begin{equation*}
-        f(x_1, x_2) = (x_1 + 2x_2 -7)^2 + (2x_1 + x_2 -5)^2
-    \end{equation*}
-
-    \item Barnin function
-    \begin{equation*}
-        f(x_1, x_2) = a(x_2 - bx_1^2 + cx_1 - r)^2 + s(1-t)cos(x_1) +s
-    \end{equation*}
-    where $a=1, b=5.1/(4\pi^2), c=5/\pi, r=6, s=10, t=1/8\pi$.
-    
-    \item Rosenbrock's Banana function
-    \begin{equation*}
-        f(x_1, x_2) = (a-x_1)^2 + b(x_2-x_1^2)^2
-    \end{equation*}
-    where $a=1, b=5$.
-    
-\end{itemize}
-More functions can be found at \url{https://en.wikipedia.org/wiki/Test_functions_for_optimization}
-\end{frame}
-
 \end{document}
 
