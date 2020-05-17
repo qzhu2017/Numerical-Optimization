@@ -153,47 +153,36 @@ These methods typically have the following steps
 \section{Initialization}
 \begin{frame}{Initialization}
 Population methods begin with an initial population, just as descent methods require an initial design point. The initial population should be spread over the design space to increase the chances that the samples are close to the best regions. 
+The following strategies can be applied
 \begin{itemize}
-    \item $t$ starts high, allowing the process to freely move , with the hope of finding a good region with the best local minimum. 
-    \item $t$ is then slowly brought down, reducing the stochasticity and forcing the search to converge to a minimum. Simulated annealing is often used on functions with many local minima due to its ability to escape local minima.
-    
+    \item Uniform distribution in a bounded region
+    \item Multivariate normal distribution centered over a region of interest.
+    \item The Cauchy distribution has an unbounded variance and can cover a much broader space.
 \end{itemize}
-
-
-At every iteration, a candidate transition from $\boldsymbol{x}$ to $\boldsymbol{x}′$ is sampled from a transition distribution $T$ and is accepted with \textcolor{blue}{probability}
-
-\begin{equation*}
-\begin{cases}
-1 & \textrm{if } \Delta y \leq 0\\
-\min(\exp(-\Delta y/t), 1) & \textrm{if }\Delta y >0
-\end{cases}
-\end{equation*}
-
-where $\Delta y = f(\boldsymbol{x})- f(\boldsymbol{x`})$
-
-\end{frame}
-
-
-\section{Cross-Entropy Method}
-\begin{frame}{Cross-Entropy Method}
-This probability distribution, often called a \textcolor{blue}{proposal distribution}, is used to propose new samples for the next iteration. At each iteration, we sample from the proposal distribution and then update the proposal distribution to fit a collection of the best samples. 
-
-		It requires choosing a family of distributions parameterized by $\theta$, such as multivariate normal distributions with \textcolor{blue}{a mean vector and a covariance matrix}. The algorithm also requires us to specify the number of elite samples, $m_{\textrm{elite}}$ , to use when fitting the parameters for the next iteration.
-
-\begin{equation*}
-\begin{split}
-    \boldsymbol{\mu}^{k+1} &= \frac{1}{m_{\textrm{elite}}} \sum_{i=1}^{m_{\textrm{elite}}} \boldsymbol{x}^i\\
-    \Sigma^{k+1} &= \frac{1}{m_{\textrm{elite}}} \sum_{i=1}^{m_{\textrm{elite}}} (\boldsymbol{x}^i - \boldsymbol{\mu}^{k+1})(\boldsymbol{x}^i - \boldsymbol{\mu}^{k+1})^T
-\end{split}
-\end{equation*}
-\end{frame}
-
-\begin{frame}{Cross-Entropy Method}
-This probability distribution, often called a \textcolor{blue}{proposal distribution}, is used to propose new samples for the next iteration. At each iteration, we sample from the proposal distribution and then update the proposal distribution to fit a collection of the best samples. 
 
 \begin{figure}
 \centering
-\includegraphics[width=120mm]{Figs/Cross-entropy.jpeg}
+\includegraphics[width=60mm]{Figs/cauchy.jpeg}
+\end{figure}   
+\end{frame}
+
+
+\section{Genetic Algorithm}
+\begin{frame}{Chromosomes}
+There are several ways to represent chromosomes. The simplest is the binary string chromosome, a representation that is similar to the way DNA is encoded.
+\end{frame}
+
+\begin{frame}{Selection}
+Selection is the process of choosing chromosomes to use as parents for the next generation. For a population with m chromosomes, a selection method will produce a list of $m$ parental pairs for the m children of the next generation. The selected pairs may contain duplicates.
+\begin{itemize}
+    \item Truncation, random one from the best $k$ truncation
+    \item Tournament, the fittest out of $k$ randomly chosen
+    \item Roulette wheel, chosen with a probability proportional to the fitness
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/selection.jpeg}
 \end{figure}   
 \end{frame}
 
@@ -213,109 +202,70 @@ The designs are then sorted according to their objective function values such th
 
 \end{frame}
 
-\begin{frame}{Covariance Matrix Adaptation}
-The recommended weighting is obtained by
-\begin{equation*}
-    w`_i = \ln \frac{m+1}{2} - \ln i ~ \textrm{for~} i \in \{1, \cdots, m\}
-\end{equation*}
-to obtain $\boldsymbol{w} = \boldsymbol{w}`/\sum_i w`_i $.
 
-The step size is updated using a cumulative $\boldsymbol{p}_\sigma$ that tracks steps over time
-\begin{equation*}
-    \begin{split}
-        \boldsymbol{p}_\sigma^1 &= 0\\
-        \boldsymbol{p}_\sigma^{k+1} &\leftarrow (1-c_\sigma)\boldsymbol{p}_\sigma + \sqrt{c_\sigma(2-c_\sigma)\mu_{\textrm{eff}}} (\Sigma^k)^{-1/2} \sigma_w \\
-        \mu_{\textrm{eff}} &= \frac{1}{\sum_i w^2_i}\\
-        \sigma_w &= \sum_{i=1}^{m_{\textrm{elite}}} 
-        w_i \sigma^i ~ \textrm{for~} \sigma^i = \frac{\boldsymbol{x}^i - \boldsymbol{\mu}^k}{\sigma^k}
-    \end{split}
-\end{equation*}
-\end{frame}
-
-\begin{frame}{Covariance Matrix Adaptation}
-The new step size is 
-\begin{equation*}
-    \sigma^{k+1} \leftarrow \sigma^k \exp\bigg(\frac{c_\sigma}{d_\sigma} \bigg[\frac{||\boldsymbol{p}_\sigma
-    ||}{\mathbb{E}||\mathcal{N}(0, \boldsymbol{I})||}-1\bigg]\bigg)
-\end{equation*}
-where $\mathbb{E}$ is the expected length of a vector drawn from Gaussian distribution.
-\begin{equation*}
-    \mathbb{E}||\mathcal{N}(0, \boldsymbol{I})|| = \sqrt{2} \frac{\Gamma(\frac{n+1}{2})}{\Gamma(\frac{n}{2})}
-    \approx \sqrt{n}\bigg(1-\frac{1}{4n}+\frac{1}{21n^2}\bigg)
-\end{equation*}
+\section{Particle Swarm Optimization}
+\begin{frame}{Particle Swarm Optimization}
+Particle swarm optimization introduces momentum to accelerate convergence toward minima. Each individual (particle), in the population keeps track of its current position, velocity, and the best position it has seen so far. Momentum allows an individual to accumulate speed in a favorable direction, independent of local perturbations.
 
 \begin{equation*}
-    \begin{split}
-    c_\sigma &= (\mu_{\textrm{eff}}+2)/(n+\mu_{\textrm{eff}}+5)\\
-    d_\sigma &= 1 + 2\max (0, \sqrt{\mu_{\textrm{eff}}-1)/(n+1)} -1 ) + c_\sigma         
-    \end{split}
-\end{equation*}
-
-\end{frame}
-
-\begin{frame}{Covariance Matrix Adaptation}
-The covariance matrix is updated as follows
-\begin{equation*}
-    \begin{split}
-    \boldsymbol{p}_\Sigma^1 &= 0\\
-    \boldsymbol{p}_\Sigma^{k+1} &\leftarrow (1-c\Sigma)\boldsymbol{p_\Sigma^k} + h_\sigma \sqrt{c\Sigma (2-c_\Sigma) \mu_{\textrm{eff}}}\boldsymbol{\sigma}_w
-    \end{split}
+\begin{split}
+    \boldsymbol{x}^i & \leftarrow \boldsymbol{x}^i + \boldsymbol{v}^i \\
+    \boldsymbol{v}^i & \leftarrow w\boldsymbol{v}^i + c_1 r_1 (\boldsymbol{x}_{lbest}^i - x^i) + c_2 r_2(\boldsymbol{x}_{gbest} - x^i)
+\end{split}
 \end{equation*}
 
 where 
-\begin{equation*}
-    h_\sigma =
-    \begin{cases}
-    1& if \frac{||\boldsymbol{p}_\Sigma||}{(1-c_\sigma^{2k+1})} < (1.4 + \frac{2}{n+1})  \mathbb{E}||\mathcal{N}(0, \boldsymbol{I})||\\
-    0& \textrm{otherwise}
-    \end{cases}
-\end{equation*}
-
-The update requires the adjusted weights $\boldsymbol{w}$:
-
-\begin{equation*}
-    w_i^0 =
-    \begin{cases}
-    w_i& \textrm{if~} w_i \geq 0 \\
-    \frac{nw_i}{||\Sigma^{-1/2}\boldsymbol{\delta}^i||^2}& \textrm{otherwise}
-    \end{cases}
-\end{equation*}
+\begin{itemize}
+    \item $x_{lbest}$: the current local best locations for the given population
+    \item $x_{gbest}$: the global best locations
+    \item $w, c_1, c_2$: empirical parameters
+    \item $r_1, r_2$: random numbers drawn from $U(0, 1)$
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Covariance Matrix Adaptation}
-The The covariance update is then
-\begin{equation*}
-    \Sigma^{k+1} \leftarrow [1 + c_1 c_\sigma(1-h_\sigma)(2 - c_\sigma) - c_1 - c_\mu]\Sigma^k 
-    + c_1 \boldsymbol{p}_\Sigma \boldsymbol{p}_\Sigma^T + c_\mu \sum_{i=1}^\mu w_i^0 \boldsymbol{\delta}^i (\boldsymbol{\delta}^i)^T
-\end{equation*}
-
-The constants have the following recommended values
-\begin{equation*}
-    \begin{split}
-    c_\Sigma &= \frac{4+\mu_{\textrm{eff}}/n}{n+4+2\mu_{\textrm{eff}}/n}\\
-    c_1 &= \frac{2}{(n+1.3)^2 + \mu_{\textrm{eff}}} \\
-    c_\mu &= \min \bigg( 1-c_1,  2\frac{\mu_{\textrm{eff}}-2+1/\mu_{\textrm{eff}}} {(n+2)^2 + \mu_{\textrm{eff}} } \bigg)
-    \end{split}
-\end{equation*}
-
-\end{frame}
-
-\begin{frame}{Covariance Matrix Adaptation}
+\begin{frame}{PSO search}
 \begin{figure}
 \centering
-\includegraphics[width=100mm]{Figs/CMA.jpeg}
+\includegraphics[width=100mm]{Lecture_notes/Figs/pso.jpeg}
+%\caption{Firefly search with $\alpha$ = 0.5, $\beta$ = 1,and $\gamma$ = 0.1 applied to the Branin function}
 \end{figure}   
+\end{frame}
+
+
+\begin{frame}{Firefly Algorithm}
+The firefly algorithm was inspired by the manner in which fireflies flash their lights to attract mates. In the firefly algorithm, each individual in the population is a firefly and can flash to attract other fireflies. At each iteration, all fireflies are moved toward all more attractive fireflies. A firefly $x_a$ is moved toward a firefly $x_b$ with greater attraction according to
+
+\begin{equation*}
+x_a \leftarrow x_a + \beta I (||x_b - x_a||)(x_b - x_a) + \alpha \epsilon
+\end{equation*}
+
+where $I$ is the intensity of the attraction and $\beta$ is the source intensity. 
+When $\beta$ = 0, it returns to a random walk. where $\epsilon$ is drawn from a zero-mean, unit covariance multivariate Gaussian, and $\alpha$ scales the step size. The resulting update is a random walk biased toward brighter fireflies
+
+The intensity $I$ decreases as the distance $r$ between the two fireflies increases and is defined to be 1 when $r$ = 0. It can be approximated as
+\begin{equation*}
+    I(r) = e^{-\gamma r^2}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Firefly search}
+Firefly search with $\alpha$ = 0.5, $\beta$ = 1,and $\gamma$ = 0.1 applied to the Branin function.
+\begin{figure}
+\includegraphics[width=120mm]{Figs/firefly.jpeg}
+\end{figure}   
+
 \end{frame}
 
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Stochastic methods employ random numbers during the optimization process
-        \item Simulated annealin guses a temperature that controls random exploration and which is reduced over time to converge on a local minimum.
-        \item The cross-entropy method and evolution strategies maintain proposal distributions from which they sample in order to inform updates.
-        \item Covariance matrix adaptation is a robust and sample-efficient optimizer that maintains a multivariate Gaussian proposal distribution with a full covariance matrix.
+        \item Population methods use a collection of individuals in the design space to guide progression toward an optimum.
+        \item Genetic algorithms leverage selection, crossover, and mutations to produce better subsequent generations.
+        \item Particle swarm optimization and the firefly algorithm include rules and mechanisms for attracting design points to the best individuals in the population while maintaining suitable state space exploration.
+        \item Population methods can be extended with local search approaches to improve convergence.
     \end{itemize}
 \end{frame}
 \end{document}
