@@ -205,7 +205,7 @@ This probability distribution, often called a \textcolor{blue}{proposal distribu
 \begin{frame}{Covariance Matrix Adaptation}
 Covariance matrix adaptation maintains a mean vector $\boldsymbol{\mu}$, a covariance matrix $\boldsymbol{\Sigma}$, and an additional step-size scalar $\delta$. The covariance matrix only increases or decreases in a single direction with every iteration, whereas the step-size scalar is adapted to control the overall spread of the distribution. At every iteration, m designs are sampled from the multivariate Gaussian
 \begin{equation*}
-    \boldsymbol{x} \propto \mathcal{N} (\boldsymbol{\mu}, \sigma^2 \Sigma)
+    \boldsymbol{x} \sim \mathcal{N} (\boldsymbol{\mu}, \sigma^2 \Sigma)
 \end{equation*}
 
 The designs are then sorted according to their objective function values such that $f(x^1) \leq f(x^2) \leq \cdots \leq f(x^m)$. A new mean vector  $\boldsymbol{\mu}^{k+1}$ is formed using a weighted average of the sampled designs:
@@ -215,6 +215,101 @@ The designs are then sorted according to their objective function values such th
     \sum_i^m w_i = 1 ~~~~ w_1>w_2>\cdots>w_m>0    
 \end{gather*}
 
+\end{frame}
+
+\begin{frame}{Covariance Matrix Adaptation}
+The recommended weighting is obtained by
+\begin{equation*}
+    w`_i = \ln \frac{m+1}{2} - \ln i ~ \textrm{for~} i \in \{1, \cdots, m\}
+\end{equation*}
+to obtain $\boldsymbol{w} = \boldsymbol{w}`/\sum_i w`_i $.
+
+The step size is updated using a cumulative $\boldsymbol{p}_\sigma$ that tracks steps over time
+\begin{equation*}
+    \begin{split}
+        \boldsymbol{p}_\sigma^1 &= 0\\
+        \boldsymbol{p}_\sigma^{k+1} &\leftarrow (1-c_\sigma)\boldsymbol{p}_\sigma + \sqrt{c_\sigma(2-c_\sigma)\mu_{\textrm{eff}}} (\Sigma^k)^{-1/2} \sigma_w \\
+        \mu_{\textrm{eff}} &= \frac{1}{\sum_i w^2_i}\\
+        \sigma_w &= \sum_{i=1}^{m_{\textrm{elite}}} 
+        w_i \sigma^i ~ \textrm{for~} \sigma^i = \frac{\boldsymbol{x}^i - \boldsymbol{\mu}^k}{\sigma^k}
+    \end{split}
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Covariance Matrix Adaptation}
+The new step size is 
+\begin{equation*}
+    \sigma^{k+1} \leftarrow \sigma^k \exp\bigg(\frac{c_\sigma}{d_\sigma} \bigg[\frac{||\boldsymbol{p}_\sigma
+    ||}{\mathbb{E}||\mathcal{N}(0, \boldsymbol{I})||}-1\bigg]\bigg)
+\end{equation*}
+where $\mathbb{E}$ is the expected length of a vector drawn from Gaussian distribution.
+\begin{equation*}
+    \mathbb{E}||\mathcal{N}(0, \boldsymbol{I})|| = \sqrt{2} \frac{\Gamma(\frac{n+1}{2})}{\Gamma(\frac{n}{2})}
+    \approx \sqrt{n}\bigg(1-\frac{1}{4n}+\frac{1}{21n^2}\bigg)
+\end{equation*}
+
+\begin{equation*}
+    \begin{split}
+    c_\sigma &= (\mu_{\textrm{eff}}+2)/(n+\mu_{\textrm{eff}}+5)\\
+    d_\sigma &= 1 + 2\max (0, \sqrt{\mu_{\textrm{eff}}-1)/(n+1)} -1 ) + c_\sigma         
+    \end{split}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Covariance Matrix Adaptation}
+The covariance matrix is updated as follows
+\begin{equation*}
+    \begin{split}
+    \boldsymbol{p}_\Sigma^1 &= 0\\
+    \boldsymbol{p}_\Sigma^{k+1} &\leftarrow (1-c\Sigma)\boldsymbol{p_\Sigma^k} + h_\sigma \sqrt{c\Sigma (2-c_\Sigma) \mu_{\textrm{eff}}}\boldsymbol{\sigma}_w
+    \end{split}
+\end{equation*}
+
+where 
+\begin{equation*}
+    h_\sigma =
+    \begin{cases}
+    1& if \frac{||\boldsymbol{p}_\Sigma||}{(1-c_\sigma^{2k+1})} < (1.4 + \frac{2}{n+1})  \mathbb{E}||\mathcal{N}(0, \boldsymbol{I})||\\
+    0& \textrm{otherwise}
+    \end{cases}
+\end{equation*}
+
+The update requires the adjusted weights $\boldsymbol{w}$:
+
+\begin{equation*}
+    w_i^0 =
+    \begin{cases}
+    w_i& \textrm{if~} w_i \geq 0 \\
+    \frac{nw_i}{||\Sigma^{-1/2}\boldsymbol{\delta}^i||^2}& \textrm{otherwise}
+    \end{cases}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Covariance Matrix Adaptation}
+The The covariance update is then
+\begin{equation*}
+    \Sigma^{k+1} \leftarrow [1 + c_1 c_\sigma(1-h_\sigma)(2 - c_\sigma) - c_1 - c_\mu]\Sigma^k 
+    + c_1 \boldsymbol{p}_\Sigma \boldsymbol{p}_\Sigma^T + c_\mu \sum_{i=1}^\mu w_i^0 \boldsymbol{\delta}^i (\boldsymbol{\delta}^i)^T
+\end{equation*}
+
+The constants have the following recommended values
+\begin{equation*}
+    \begin{split}
+    c_\Sigma &= \frac{4+\mu_{\textrm{eff}}/n}{n+4+2\mu_{\textrm{eff}}/n}\\
+    c_1 &= \frac{2}{(n+1.3)^2 + \mu_{\textrm{eff}}} \\
+    c_\mu &= \min \bigg( 1-c_1,  2\frac{\mu_{\textrm{eff}}-2+1/\mu_{\textrm{eff}}} {(n+2)^2 + \mu_{\textrm{eff}} } \bigg)
+    \end{split}
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Covariance Matrix Adaptation}
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Figs/CMA.jpeg}
+\end{figure}   
 \end{frame}
 
 
