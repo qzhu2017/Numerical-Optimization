@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Constrained Optimization]{Numerical Optimization 15: Constrained Optimization} %
+\title[Probabilistic Surrogate Models]{Numerical Optimization 15: Probabilistic Surrogate Models} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,126 +135,217 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Constrained Optimization}
-\begin{frame}{Noisy Descent}
-Fitting Surrogate Models
+\section{Gaussian Distribution}
+\begin{frame}{Gaussian Distribution}
+In surrogate modeling, a strategy is to use a probabilistic model to estimate the confidence of the model, one of which is Gaussian process.
+
+An $n$-dimensional Gaussian distribution is parameterized by its mean $\mu$ and its covariance matrix $\Sigma$. The probability density at \boldsymbol{x} is
+\begin{equation*}
+    \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}, \boldsymbol{\Sigma}) =
+    (2\pi)^{-n/2} |\boldsymbol{\Sigma}|^{-1/2} \exp\bigg(-\frac{1}{2}(\boldsymbol{x-\mu})^T \boldsymbol{\Sigma}^{-1}(\boldsymbol{x-\mu})\bigg)
+\end{equation*}
+
 \begin{figure}
 \centering
-\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
+\includegraphics[width=100mm]{Figs/gaussian.jpeg}
 \end{figure}   
 
 \end{frame}
 
-\section{Constraints}
-\begin{frame}{Constraints}
-Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
-
-\begin{itemize}
-    \item equality constraints, $h(x)=0$ 
-    \item inequality constraints, $g(x) \leq 0$
-    
-\end{itemize}
-
-Any optimization problem can be rewritten using these constraints
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 \\
-    ~~~~~~~~~ g_j(x) = 0
-\end{gather*}
-
-\end{frame}
-
-\section{Transformations to Remove Constraints}
-\begin{frame}{Transformations to Remove Constraints}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
+\begin{frame}{Gaussian Distribution: Nice Properties}
+A value sampled from a Gaussian is written 
 \begin{equation*}
-x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
+    \boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})
 \end{equation*}
 
-Below is an example
-\begin{gather*}
-    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
-    {s.t.}~~~~ 2\leq x \leq 6 \\
-\end{gather*}
-Can be transformed to 
-\begin{gather*}
-    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
-    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
-\end{gather*}
-
-\end{frame}
-
-\section{Lagrange Multipliers}
-\begin{frame}{Lagrange Multipliers}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 
-\end{gather*}
-
-where $f$ and $h$ have continuous partial derivatives.
-
-We can formulate the Lagrangian, which is a function of the design variables,
-\begin{gather*}
-    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
-\end{gather*}
-
-Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
-
-\end{frame}
-
-\begin{frame}{Lagrange Multipliers to a single equality condition}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
+Two jointly Gaussian random variables $\boldsymbol{a}$ and $\boldsymbol{b}$ can be written
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+    \begin{bmatrix} 
+    \boldsymbol{a}\\
+    \boldsymbol{b}
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    \boldsymbol{\mu}_a \\
+    \boldsymbol{\mu}_b
+    \end{bmatrix},
+    \begin{bmatrix}
+    \boldsymbol{A}, &\boldsymbol{C} \\
+    \boldsymbol{C}^T,& \boldsymbol{B}
+    \end{bmatrix}
+    \bigg)
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
 
-\end{frame}
-
-
-\begin{frame}{Lagrange Multipliers to multiple equality conditions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
+where the marginal distribution for a vector of random variables is given by its corresponding mean and covariance
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+    \boldsymbol{a} \sim \mathcal{N}(\boldsymbol{\mu}_a, \boldsymbol{A}) ~~~~~~~~~~
+    \boldsymbol{b} \sim \mathcal{N}(\boldsymbol{\mu}_b, \boldsymbol{B}) 
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
+
+The \textcolor{blue}{conditional distribution} for a multivariate Gaussian also has a convenient closed-form solution:
+\begin{equation*}
+\begin{split}
+    \boldsymbol{a} | \boldsymbol{b} & \sim \mathcal{N}(\boldsymbol{\mu}_{a|b}, \boldsymbol{\Sigma}_{a|b}) \\ 
+    \boldsymbol{\mu}|_{a|b} &= \boldsymbol{\mu}_{a} + \boldsymbol{CB}^{-1}(\boldsymbol{b} - \boldsymbol{\mu}_{a})\\
+    \boldsymbol{\Sigma}_{a|b} &= \boldsymbol{A} − \boldsymbol{CB}^{−1}\boldsymbol{C}^⊤    
+\end{split}
+\end{equation*}
 
 \end{frame}
+
+\section{Gaussian Processes}
+\begin{frame}{Gaussian Processes}
+A special type of surrogate model known as a Gaussian process allows us not only to predict $f$ but also to quantify our uncertainty in that prediction using a probability distribution.
+
+\begin{equation*}
+    \begin{bmatrix} 
+    y_1\\
+    \vdots\\
+    y_m\\
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    m(x_1) \\
+    \vdots \\
+    m(x_m)
+    \end{bmatrix},
+    \begin{bmatrix}
+    k(x_1, x_1) & \cdots & k(x_1, x_m)\\
+    \vdots & \ddots & \vdots \\
+    k(x_m, x_1) & \cdots & k(x_m, x_m)\\
+    \end{bmatrix}
+    \bigg)
+\end{equation*}
+
+where 
+\begin{itemize}
+    \item $m(x)$ is the mean function to represent the prior knowledge about the function
+    \item $k(x, x`)$ is the covariance function to control the smoothness.
+\end{itemize}
+A common choice os $k$ is the squared exponential function
+\begin{equation*}
+    k(x, x`) = \exp\bigg(-\frac{(x-x`)^2}{2l^2}\bigg)
+\end{equation*}
+\end{frame}
+
+\section{Prediction}
+\begin{frame}{Prediction}
+Suppose we already have a set of points $X$ and the corresponding $\boldsymbol{y}$, we wish to predict the values $\hat{\boldsymbol{y}}$ at points $X^*$. from the joint distribution
+\begin{equation*}
+    \begin{bmatrix} 
+    \hat{y}\\
+    y\\
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    \boldsymbol{m}(X^*) \\
+    \boldsymbol{m}(X)
+    \end{bmatrix},
+    \begin{bmatrix}
+    \boldsymbol{K}(X^*, X^*)  & \boldsymbol{K}(X^*, X)\\
+    \boldsymbol{K}(X, X^*)    & \boldsymbol{K}(X, X)\\
+    \end{bmatrix}
+    \bigg)
+\end{equation*}
+
+In the equation above, we use the functions $m$ and $K$, which are defined as follows:
+\begin{equation*}
+\begin{split}
+\boldsymbol{m}(X) &= [m(\boldsymbol{x}^1), \cdots, m(\boldsymbol{x}^n)]\\
+\boldsymbol{K}(X, X`) & = 
+    \begin{bmatrix}
+    k(X^*, X^*) & \cdots & k(X^*, X)\\
+    \vdots & \ddots & \vdots \\
+    k(X, X^*)  &\cdots  & k(X, X)
+    \end{bmatrix}
+\end{split}
+\end{equation*}
+
+The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y} & \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
+\begin{equation*}
+\begin{split}
+    \boldsymbol{\mu}^* &= m(X^{∗}) +  K(X^{∗}, X) K(X, X)^{-1} (\boldsymbol{y} - m(X)) \\
+    \boldsymbol{\Sigma}^* &= K(X^{*} - X^{*}) - K(X^{∗}, X)K(X, X)^{-1}K(X, X^{*}))    
+\end{split}
+\end{equation*}
+
+
+\end{frame}
+
+\section{Gradient Measurements}
+\begin{frame}{Gradient Measurements}
+
+
+\end{frame}
+
+
+\section{Noisy Measurements}
+\begin{frame}{Noisy Measurements}
+So far we have assumed that the objective function $f$ is deterministic. In practice, however, evaluations of $f$ may include measurement noise,
+experimental error. We can model noisy evaluations as $y = f (x) + z$, where $z$ is zero-mean Gaussian noise, \textcolor{blue}{$z \sim \mathcal{N}(0, v)$}. The new joint distribution is:
+\begin{equation*}
+    \begin{bmatrix} 
+    \hat{y}\\
+    y\\
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    \boldsymbol{m}(X^*) \\
+    \boldsymbol{m}(X)
+    \end{bmatrix},
+    \begin{bmatrix}
+    \boldsymbol{K}(X^*, X^*)  & \boldsymbol{K}(X^*, X)\\
+    \boldsymbol{K}(X, X^*)    & \boldsymbol{K}(X, X) + \textcolor{blue}{v{\bf I}}\\
+    \end{bmatrix}
+    \bigg)
+\end{equation*}
+
+The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y} & \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
+\begin{equation*}
+\begin{split}
+    \boldsymbol{\mu}^* &= m(X^{∗}) +  K(X^{∗}, X) (K(X, X)+ \textcolor{blue}{v{\bf I}})^{-1} (\boldsymbol{y} - m(X)) \\
+    \boldsymbol{\Sigma}^* &= K(X^{*} - X^{*}) - K(X^{∗}, X)(K(X, X)+\textcolor{blue}{v{\bf I}})^{-1}K(X, X^{*}))    
+\end{split}
+\end{equation*}
+
+
+\end{frame}
+
+\section{Fitting Gaussian Processes}
+\begin{frame}{Fitting Gaussian Processes}
+Given a dataset with $n$ entries, the log likelihood is given by
+\begin{equation*}
+\begin{split}
+    \log p(\boldsymbol{y}|X, v, \boldsymbol{\sigma}) =& 
+    -\frac{n}{2}\log{2\pi} - \frac{1}{2}\log |\boldsymbol{K}_\theta(X, X) + v\boldsymbol{I}|\\
+    &-\frac{1}{2}(\boldsymbol{y}-\boldsymbol{m}_\theta)^T (\boldsymbol{K}_\theta(X, X) + v\boldsymbol{I})^{-1}
+    y-\boldsymbol{m}_\theta(X)    
+\end{split}
+\end{equation*}
+The gradient is then given by
+\begin{equation*}
+\begin{split}
+    \frac{\partial}{\partial \theta} \log p(\boldsymbol{y}|X, v, \boldsymbol{\sigma}) =
+    \frac{1}{2}\boldsymbol{y}^T \boldsymbol{K}^{-1} \frac{\partial \boldsymbol{K}}{\theta_j} \boldsymbol{K}^{-1} \boldsymbol{y}
+    - \frac{1}{2}\textrm{Tr}\bigg(\boldsymbol{\Sigma}^{-1}_{\theta} \frac{\partial \boldsymbol{K}}{\theta_j} \bigg)
+\end{split}
+\end{equation*}
+
+where $\boldsymbol{\Sigma}^{-1}_{\theta} = \boldsymbol{K}_\theta(X, X) + v{\bf I}$
+
+\end{frame}
+
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Constraints are requirements on the design points that a solution must satisfy.
-        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
-        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
-        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
+        \item Gaussian processes are probability distributions over functions.
+        %\item The choice of kernel affects the smoothness of the functions sampled from a Gaussian process.
+        \item The multivariate normal distribution has analytic conditional and marginal distributions.
+        \item We can compute the mean and standard deviation of our prediction of an objective function at a particular design point given a set of past evaluations.
+        \item We can incorporate gradient observations to improve our predictions of the objective value and its gradient.
+        \item We can incorporate measurement noise into a Gaussian process.
+        \item We can fit the parameters of a Gaussian process using maximum likelihood.
     \end{itemize}
 \end{frame}
 \end{document}

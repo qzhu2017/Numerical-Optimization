@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Constrained Optimization]{Numerical Optimization 15: Constrained Optimization} %
+\title[Surrogate Optimization]{Numerical Optimization 16: Surrogate Optimization} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,8 +135,8 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Constrained Optimization}
-\begin{frame}{Noisy Descent}
+\section{Prediction-Based Exploration}
+\begin{frame}{Prediction-Based Exploration}
 Fitting Surrogate Models
 \begin{figure}
 \centering
@@ -251,10 +251,8 @@ We compute
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Constraints are requirements on the design points that a solution must satisfy.
-        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
-        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
-        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
+        \item Gaussian processes can be used to guide the optimization process using a variety of strategies that use estimates of quantities such as the lower confidence bound, probability of improvement, and expected improvement.
+        \item Some problems do not allow for the evaluation of unsafe designs, in which case we can use safe exploration strategies that rely on Gaussian processes.
     \end{itemize}
 \end{frame}
 \end{document}

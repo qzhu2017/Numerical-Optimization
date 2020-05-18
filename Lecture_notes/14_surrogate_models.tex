@@ -135,37 +135,39 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Constrained Optimization}
-\begin{frame}{Noisy Descent}
-Fitting Surrogate Models
-\begin{figure}
-\centering
-\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
-\end{figure}   
+\section{Surrogate Models}
+\begin{frame}{Surrogate Models}
+The \textcolor{blue}{surrogate models} are designed to be smooth and inexpensive to evaluate so that they can be efficiently optimized from the given sampling points. A surrogate model $\hat{f}$ parameterized by $\theta$ is designed to mimic the true objective function $f$. The parameters $\theta$ can be adjusted to fit the model based on samples collected from $f$. 
 
-\end{frame}
-
-\section{Constraints}
-\begin{frame}{Constraints}
-Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
-
+Suppose we have 
 \begin{itemize}
-    \item equality constraints, $h(x)=0$ 
-    \item inequality constraints, $g(x) \leq 0$
-    
+    \item $m$ design points: $\{x^1, x^2, \cdots, x^m\}$
+    \item associated function evaluations: $\{y^1, y^2, \cdots, y^m\}$
 \end{itemize}
+For a particular set of parameters, the model will predict
+\begin{equation*}
+    \hat{y} = \{\hat{f}_\theta(x^1), \hat{f}_\theta(x^2), \cdots, \hat{f}_\theta(x^m)\}
+\end{equation*}
 
-Any optimization problem can be rewritten using these constraints
+In turn, this is a minimization problem
+\begin{equation*}
+    \underset{\theta}{\min} = ||y-\hat{y}||
+\end{equation*}
+\end{frame}
+
+\section{Linear Models}
+\begin{frame}{Linear Models}
+A simple surrogate model is the linear model, which has the form
+
 \begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 \\
-    ~~~~~~~~~ g_j(x) = 0
+    \hat{f} = w_0 + \boldsymbol{w}^T x ~~~~~~~~~~~~ \theta= \{w_0, \boldsymbol{w}\}
 \end{gather*}
+For an $n$-dimensional design space, the linear model has $n+1$ parameters, and thus requires at least $n+1$ samples to fit unambiguously.
 
 \end{frame}
 
-\section{Transformations to Remove Constraints}
-\begin{frame}{Transformations to Remove Constraints}
+\section{Basis Functions}
+\begin{frame}{Basis Functions}
 In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
 
 \begin{equation*}
@@ -185,8 +187,7 @@ Can be transformed to
 
 \end{frame}
 
-\section{Lagrange Multipliers}
-\begin{frame}{Lagrange Multipliers}
+\begin{frame}{Polynomial Basis Functions}
 The method of Lagrange multipliers is used to optimize a function subject to equality
 constraints. 
 \begin{gather*}
@@ -205,7 +206,7 @@ Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L
 
 \end{frame}
 
-\begin{frame}{Lagrange Multipliers to a single equality condition}
+\begin{frame}{Sinusoidal Basis Functions}
 The method of Lagrange multipliers is used to optimize a function subject to equality
 constraints. 
 \begin{gather*}
@@ -227,7 +228,7 @@ We compute
 \end{frame}
 
 
-\begin{frame}{Lagrange Multipliers to multiple equality conditions}
+\begin{frame}{Radial Basis Functions}
 The method of Lagrange multipliers is used to optimize a function subject to equality
 constraints. 
 \begin{gather*}
@@ -246,15 +247,20 @@ We compute
     \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
 \end{itemize}
 
+\end{frame}
+
+\section{Fitting Noisy Objective Functions}
+\begin{frame}{Fitting Noisy Objective Functions}
+    
 \end{frame}
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Constraints are requirements on the design points that a solution must satisfy.
-        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
-        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
-        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
+        \item Surrogate models are function approximations that can be optimized instead of the true, potentially expensive objective function.
+        \item Many surrogate models can be represented using a linear combination of basis functions.
+        \item Model selection involves a bias-variance trade off between models with low complexity that cannot capture important trends and models with high complexity that overfit to noise.
+        \item Generalization error can be estimated using techniques such as hold out,k-fold cross validation, and the bootstrap.
     \end{itemize}
 \end{frame}
 \end{document}

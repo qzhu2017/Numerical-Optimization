@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Sampling Plans]{Numerical Optimization 13: Sampling Plans} %
+\title[Symbolic Regression]{Numerical Optimization 18: Symbolic Regression} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,57 +135,116 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Sampling}
-\begin{frame}{Optimization with expensive function evaluations }
-For many optimization problems, function evaluations can be quite expensive. 
-\begin{itemize}
-    \item an aircraft design may require a wind tunnel test
-    \item deep learning hyperparameters may require a week of GPU training
-    \item $\cdots$
-\end{itemize} 
-A common approach for optimizing in these contexts is to build a \textcolor{blue}{surrogate model},
-Further evaluations of the true objective function can be used to improve the model. Fitting such models requires an initial set of points, ideally points that are space-filling; that is, points that cover the region as well as possible. 
-\end{frame}
-
-\section{Full Factorial}
-\begin{frame}{Full Factorial}
-The full factorial sampling plan places a grid of evenly spaced points over the search space.
-\begin{itemize}
-    \item a lower/upper-bound vector $a, b$ such that $a_i \leq x_i \leq b_i$
-    \item $m_i$ samples in each $x_i$ separated by a distance $(b_i-a_i)/(m_i-1)$
-\end{itemize} 
+\section{Constrained Optimization}
+\begin{frame}{Noisy Descent}
+Fitting Surrogate Models
 \begin{figure}
 \centering
-\includegraphics[width=80mm]{Figs/grid_search.jpeg}
-\end{figure} 
+\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
+\end{figure}   
 
 \end{frame}
 
-\section{Random Sampling}
-\begin{frame}{Random Sampling}
+\section{Constraints}
+\begin{frame}{Constraints}
+Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
+
+\begin{itemize}
+    \item equality constraints, $h(x)=0$ 
+    \item inequality constraints, $g(x) \leq 0$
+    
+\end{itemize}
+
+Any optimization problem can be rewritten using these constraints
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
+    {s.t.}~~~~ h_i(x) = 0 \\
+    ~~~~~~~~~ g_j(x) = 0
+\end{gather*}
+
+\end{frame}
+
+\section{Transformations to Remove Constraints}
+\begin{frame}{Transformations to Remove Constraints}
 In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
+
+\begin{equation*}
+x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
+\end{equation*}
+
+Below is an example
+\begin{gather*}
+    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
+    {s.t.}~~~~ 2\leq x \leq 6 \\
+\end{gather*}
+Can be transformed to 
+\begin{gather*}
+    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
+    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
+\end{gather*}
+
+\end{frame}
+
+\section{Lagrange Multipliers}
+\begin{frame}{Lagrange Multipliers}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
+    {s.t.}~~~~ h_i(x) = 0 
+\end{gather*}
+
+where $f$ and $h$ have continuous partial derivatives.
+
+We can formulate the Lagrangian, which is a function of the design variables,
+\begin{gather*}
+    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
+\end{gather*}
+
+Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
+
+\end{frame}
+
+\begin{frame}{Lagrange Multipliers to a single equality condition}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
+    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
+\end{gather*}
+
+We can formulate the Lagrangian, 
+\begin{equation*}
+    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\end{equation*}
+We compute
+\begin{itemize}
+    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
+    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
+    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
+\end{itemize}
 
 \end{frame}
 
 
-\section{Uniform Projection Plans}
-\begin{frame}{Uniform Projection Plans}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
+\begin{frame}{Lagrange Multipliers to multiple equality conditions}
+The method of Lagrange multipliers is used to optimize a function subject to equality
+constraints. 
+\begin{gather*}
+    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
+    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
+\end{gather*}
 
-\end{frame}
-
-\section{Stratified Sampling}
-\begin{frame}{Uniform Projection Plans}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
-
-\end{frame}
-
-
-\section{Space-Filling Metrics}
-\begin{frame}{Uniform Projection Plans}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
+We can formulate the Lagrangian, 
+\begin{equation*}
+    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\end{equation*}
+We compute
+\begin{itemize}
+    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
+    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
+    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
+\end{itemize}
 
 \end{frame}
 
