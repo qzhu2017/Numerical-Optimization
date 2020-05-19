@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Constrained Optimization]{Numerical Optimization 12: Constrained Optimization} %
+\title[Surrogate models]{Numerical Optimization 14: Surrogate models} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -164,94 +164,125 @@ A simple surrogate model is the linear model, which has the form
 \end{gather*}
 For an $n$-dimensional design space, the linear model has $n+1$ parameters, and thus requires at least $n+1$ samples to fit unambiguously.
 
+Instead of having both $w$ and $w_0$ as parameters, it is common to construct a single vector of parameters $\theta = [w_0, \boldsymbol{w}]$ and prepend 1 to the vector x to get
+\begin{equation*}
+    \hat{f} = \boldsymbol{\theta}^T \boldsymbol{x}
+\end{equation*}
+
+Finding an optimal $\boldsymbol{\theta}$ requires solving a linear regression problem:
+\begin{equation*}
+    \underset{\theta}{\min}~||\boldsymbol{y}-\hat{\boldsymbol{y}}|| ~~\textrm{or}~~ ||y-\boldsymbol{X\theta}||
+\end{equation*}
+where $\boldsymbol{X}$ is a design matrix, $[(\boldsymbol{x}^1)^T; \cdots; (\boldsymbol{x}^m)^T]$
+
 \end{frame}
 
 \section{Basis Functions}
 \begin{frame}{Basis Functions}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
+The linear model is a linear combination of the components of $\boldsymbol{x}$:
 \begin{equation*}
-x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
+    \hat{f}(\boldsymbol{x}) = \theta_1 x_1 + \cdots + \theta_n x_n = \sum_{i=1}^n \theta_i x_i = \boldsymbol{\theta}^T \boldsymbol{x}
+\end{equation*}
+which is a specific example of a more general linear combination of basis functions.
+\begin{equation*}
+     \hat{f}(\boldsymbol{x}) = \theta_1 b(x_1) + \cdots + \theta_n b(x_n) = \sum_{i=1}^n \theta_i b(x_i) = \boldsymbol{\theta}^T b(\boldsymbol{x})
 \end{equation*}
 
-Below is an example
-\begin{gather*}
-    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
-    {s.t.}~~~~ 2\leq x \leq 6 \\
-\end{gather*}
-Can be transformed to 
-\begin{gather*}
-    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
-    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
-\end{gather*}
+Linear models cannot capture nonlinear relations. There are a variety of other families of basis functions that can represent more expressive surrogate models. The remainder of this section discusses a few common families.
 
 \end{frame}
 
 \begin{frame}{Polynomial Basis Functions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 
-\end{gather*}
+Polynomial basis functions consist of a product of design vector components, each raised to a power. Linear basis functions are a special case of polynomial basis functions.
 
-where $f$ and $h$ have continuous partial derivatives.
+In one dimension, a polynomial model of degree $k$ has the form
+\begin{equation*}
+    \hat{f}(x) = \theta_0 + \theta_1 x + \theta_2 x^2 + \cdots = \sum_{i=1}^k \theta_i x^i
+\end{equation*}
 
-We can formulate the Lagrangian, which is a function of the design variables,
-\begin{gather*}
-    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
-\end{gather*}
-
-Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
-
+In two dimensions, a polynomial model of degree $k$ has basis functions of the form
+\begin{equation*}
+    b_{ij}(\boldsymbol{x}) = x_1^j x_2^j ~~{\textrm{for~}} i, j \in \{0, \cdots, k\}, i+j \leq k
+\end{equation*}
 \end{frame}
 
 \begin{frame}{Sinusoidal Basis Functions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
+Any continuous function over a finite domain can be represented using an infinite set of sinusoidal basis functions. A Fourier series can be constructed for any integrable univariate function $f$ on an interval $[a, b]$
 
-We can formulate the Lagrangian, 
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+    f(x) = \frac{\theta_0}{2} + \sum_{i=1}^\infty \theta_i^{\sin} \sin \bigg(\frac{2\pi ix}{b-a}\bigg)
+    \sum_{i=1}^\infty \theta_i^{\cos} \cos \bigg(\frac{2\pi ix}{b-a}\bigg)
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
+
+where
+\begin{equation*}
+    \begin{split}
+        \theta_0 &= \frac{2}{b-a} \int_a^b f(x)dx \\ 
+        \theta_i^{\sin}&= \frac{2}{b-a} \int_a^b f(x)\sin \bigg(\frac{2\pi ix}{b-a}\bigg) dx \\ 
+        \theta_i^{\cos}&= \frac{2}{b-a} \int_a^b f(x)\cos \bigg(\frac{2\pi ix}{b-a}\bigg) dx 
+    \end{split}
+\end{equation*}
 
 \end{frame}
 
 
 \begin{frame}{Radial Basis Functions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
+A radial function $\Psi$ is one which depends only on the distance of a point from some center point $c$, such that it can be written $\Psi(x, c) = \Psi(|x − c|)) = \Psi(r)$.
 
-We can formulate the Lagrangian, 
-\begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
-\end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Figs/rbf.jpeg}
+\end{figure} 
 
 \end{frame}
 
 \section{Fitting Noisy Objective Functions}
 \begin{frame}{Fitting Noisy Objective Functions}
-    
+Models fit using regression will pass as close as possible to every design point. When the objective function evaluations are noisy, complex models are likely to excessively contort themselves to pass through every point. However, smoother fits are often better predictors of the true underlying objective function. A regularization term is added in addition to the prediction error in order to give preference to solutions with lower weights. The resulting basis regression problem with L2 regularization is:
+\begin{equation*}
+    \underset{\theta}{\min} ||\boldsymbol{y-B\theta}||^2 + \lambda ||\boldsymbol{\theta}||^2_2
+\end{equation*}
+
+The optimal parameter vector is given by:
+\begin{equation*}
+    \boldsymbol{\theta} = (\boldsymbol{B^TB} + \lambda {\bf I}) \boldsymbol{B^Ty}
+\end{equation*}
+
+where \textbf{I} is the identity matrix.
+\end{frame}
+
+\section{Model Selection}
+
+\begin{frame}{Model Selection}
+So far, we have discussed how to fit a particular model to data. We generally want to minimize generalization error, which is a measure of the error of the model on the full design space, including points that may not be included in the data used to train the model. One way to measure generalization error is to use the expected squared error of its predictions:
+\begin{equation*}
+    \epsilon_{\textrm{gen}} = \mathbb{E}_{\boldsymbol{x} \sim \boldsymbol{\chi}} \bigg[\bigg(f(x)-\hat{f}(x)\bigg)^2\bigg]
+\end{equation*}
+
+which impossible to compute. It may be tempting to estimate the generalization error of a model from the training error by using the mean squared error (MSE) of the model evaluated on the $m$ samples:
+\begin{equation*}
+    \epsilon_{\textrm{train}} = \frac{1}{m} \sum_i^m \bigg[\bigg(f(x^i)-\hat{f}(x^i)\bigg)^2\bigg]
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Holdout}
+A simple approach to estimating the generalization error is the holdout method, which partitions the available data into a test set $D_h$ with $h$ samples and a training set Dt consisting of all remaining $m-h$ samples. The training set is used to fit model parameters. The held out test set is not used during model fitting, and can thus be used to estimate the generalization error. Different split ratios are used, typically ranging from 50\% train, 50\% test to 90\% train, 10\% test, depending on the size and nature of the dataset. Using too few samples for training can result in poor fits, whereas using too many will result in poor generalization estimates.
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Figs/holdout.jpeg}
+\end{figure} 
+
+\end{frame}
+
+
+
+\begin{frame}{Cross validation}
+Here, the original dataset D is randomly partitioned into $k$ sets $D_1, D_2, \cdots, D_k$ of equal, or approximately equal, size. We then train $k$ models, one on each subset of $k-1$ sets, and we use the withheld set to estimate the generalization error. The cross-validation estimate of generalization error is the mean generalization error over all folds   
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Figs/cross-valid.jpeg}
+\end{figure} 
 \end{frame}
 
 \section{Summary}
