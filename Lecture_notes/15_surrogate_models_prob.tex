@@ -139,7 +139,7 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 \begin{frame}{Gaussian Distribution}
 In surrogate modeling, a strategy is to use a probabilistic model to estimate the confidence of the model, one of which is Gaussian process.
 
-An $n$-dimensional Gaussian distribution is parameterized by its mean $\mu$ and its covariance matrix $\Sigma$. The probability density at \boldsymbol{x} is
+An $n$-dimensional Gaussian distribution is parameterized by its mean $\mu$ and its covariance matrix $\Sigma$. The probability density at $\boldsymbol{x}$ is
 \begin{equation*}
     \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}, \boldsymbol{\Sigma}) =
     (2\pi)^{-n/2} |\boldsymbol{\Sigma}|^{-1/2} \exp\bigg(-\frac{1}{2}(\boldsymbol{x-\mu})^T \boldsymbol{\Sigma}^{-1}(\boldsymbol{x-\mu})\bigg)
@@ -261,7 +261,7 @@ In the equation above, we use the functions $m$ and $K$, which are defined as fo
 \end{split}
 \end{equation*}
 
-The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y} & \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
+The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y} \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
 \begin{equation*}
 \begin{split}
     \boldsymbol{\mu}^* &= m(X^{∗}) +  K(X^{∗}, X) K(X, X)^{-1} (\boldsymbol{y} - m(X)) \\
@@ -300,7 +300,7 @@ experimental error. We can model noisy evaluations as $y = f (x) + z$, where $z$
     \bigg)
 \end{equation*}
 
-The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y} & \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
+The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y}  \sim \mathcal{N}(\boldsymbol{\mu}^*, \boldsymbol{\Sigma}^*)$
 \begin{equation*}
 \begin{split}
     \boldsymbol{\mu}^* &= m(X^{∗}) +  K(X^{∗}, X) (K(X, X)+ \textcolor{blue}{v{\bf I}})^{-1} (\boldsymbol{y} - m(X)) \\
