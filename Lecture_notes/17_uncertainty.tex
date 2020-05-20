@@ -108,7 +108,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Constrained Optimization]{Numerical Optimization 17: Uncertainty} %
+\title[Uncertainty]{Numerical Optimization 17: Uncertainty} %
 
 \author{Qiang Zhu} % Your name
 \institute[University of Nevada Las Vegas] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -135,126 +135,133 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 %------------------------------------------------
 
-\section{Constrained Optimization}
-\begin{frame}{Noisy Descent}
-Fitting Surrogate Models
+\section{Uncertainty}
+\begin{frame}{Uncertainty}
+In many engineering tasks, however, there may be uncertainty due to a number of factors, such as model approximations, imprecision, and fluctuations of parameters over time. We want to minimize $f(x, z)$, but we do not have control over $z$. Feasibility depends on both the design vector $x$ and the uncertain vector $z$. 
 \begin{figure}
 \centering
-\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
-\end{figure}   
-
+\includegraphics[width=110mm]{Figs/uncertainty.jpeg}
+\end{figure} 
 \end{frame}
 
-\section{Constraints}
-\begin{frame}{Constraints}
-Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
+\section{Polynomial Chaos}
+\begin{frame}{Polynomial chaos}
+\textcolor{blue}{Polynomial chaos} is a method for fitting a polynomial to $f(x, z)$ and using the resulting surrogate model to estimate the mean and variance. 
 
-\begin{itemize}
-    \item equality constraints, $h(x)=0$ 
-    \item inequality constraints, $g(x) \leq 0$
-    
-\end{itemize}
-
-Any optimization problem can be rewritten using these constraints
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 \\
-    ~~~~~~~~~ g_j(x) = 0
-\end{gather*}
-
-\end{frame}
-
-\section{Transformations to Remove Constraints}
-\begin{frame}{Transformations to Remove Constraints}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
+In one dimension, we approximate $f(z)$ with a surrogate model consisting of $k$ polynomial basis functions, $b_1, \cdots, b_k$:
 \begin{equation*}
-x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
+    f(z) = \hat{f}(z) = \sum_{i=1}^k \theta_i b_i(z)
+\end{equation*}
+The mean of $\hat{f}$ can be derived as follows
+\begin{equation*}
+\begin{split}
+    \hat{\mu} & = \int_Z p(z)\hat{f}(z) dz = \int_Z \sum_{i=1}^k p(z) \theta_i b_i(z) dx
+    = \sum_{i=1}^k \int_Z \theta_i b_i(z) p(z)dz \\
+              & = \theta_1 \int_Z b_1(z) p(z)dz + \cdots + \theta_n \int_Z b_n(z) p(z)dz
+\end{split}
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Polynomial chaos}
+The variance of $\hat{f}$ can be derived as follows
+\begin{equation*}
+\begin{split}
+    \hat{\sigma} & = \mathbb{E}[\hat{f}^2] - (\mathbb{E}[\hat{f}])^2
+    = \int_Z p^2(z)\hat{f}(z) dz - \mu^2\\
+    &= \int_Z \sum_{i=1}^k\sum_{j=1}^k  \theta_i\theta_j b_i(z)b_j(z)p(z)dz - \mu^2\\
+    & = \int_Z \bigg( \sum_{i=1}^k \theta_i^2 b_i^2(z) + 2\sum_{i=2}^k\sum_{j=1}^{i-1} \theta_i\theta_j b_i(z)b_j(z)\bigg)p(z)dz -\mu^2 \\
+    & =  \sum_{i=1}^k \theta_i^2 \int_Z b_i^2(z)dz + 2\sum_{i=2}^k\sum_{j=1}^{i-1} \theta_i\theta_j \int_Z b_i(z)b_j(z)p(z)dz
+    - \mu^2
+\end{split}
+\end{equation*}
+\end{frame}
+
+\section{Orthogonal polynomial basis}
+\begin{frame}{Orthogonal polynomial basis}
+The mean and variance can be efficiently computed if the basis functions are chosen to be orthogonal under $p$. Two basis functions $b_i$ and $b_j$ are orthogonal with respect to a probability density $p(z)$ if
+\begin{equation*}
+     \int_Z b_i(z)b_j(z)p(z)dz = 0. ~({\textrm{if~}} i\neq j)
 \end{equation*}
 
-Below is an example
-\begin{gather*}
-    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
-    {s.t.}~~~~ 2\leq x \leq 6 \\
-\end{gather*}
-Can be transformed to 
-\begin{gather*}
-    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
-    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
-\end{gather*}
-
-\end{frame}
-
-\section{Lagrange Multipliers}
-\begin{frame}{Lagrange Multipliers}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 
-\end{gather*}
-
-where $f$ and $h$ have continuous partial derivatives.
-
-We can formulate the Lagrangian, which is a function of the design variables,
-\begin{gather*}
-    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
-\end{gather*}
-
-Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
-
-\end{frame}
-
-\begin{frame}{Lagrange Multipliers to a single equality condition}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
+If the chosen basis functions are all orthogonal to one another and the first basis function is $b_1(z) = 1$, the mean is:
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\begin{split}
+    \hat{\mu} & = \theta_1 \int_Z b_1(z) p(z)dz + \cdots + \theta_n \int_Z b_n(z) p(z)dz\\
+    & = \theta_1 \int_Z b^2_1(z) p(z)dz + \cdots + \theta_n \int_Z b_1(z) b_n(z) p(z)dz\\
+    & = \theta_1
+\end{split}
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
 
 \end{frame}
 
-
-\begin{frame}{Lagrange Multipliers to multiple equality conditions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
+\begin{frame}{Orthogonal polynomial basis}
+Similarly, the variance is 
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+\begin{split}
+    \hat{\sigma} & = \sum_{i=1}^k \theta_i^2 \int_Z b_i^2(z)dz + 2\sum_{i=2}^k\sum_{j=1}^{i-1} \theta_i\theta_j \int_Z b_i(z)b_j(z)p(z)dz - \mu^2\\
+    & = \sum_{i=1}^k \theta_i^2 \int_Z b_i^2(z)dz - \mu^2 \\
+    & = \theta_1^2 \int_Z b_1^2(z)dz - \sum_{i=1}^k \theta_i^2 \int_Z b_i^2(z)dz- \mu^2 \\
+    & = \sum_{i=1}^k \theta_i^2 \int_Z b_i^2(z)dz
+\end{split}
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
 
+\end{frame}
+
+\begin{frame}{Orthogonal polynomial basis}
+The mean thus falls immediately from fitting a surrogate model to the observed data, and the variance can be very efficiently computed given the values $\int_Z b_i^2(z)p(z)dz$ for a choice of basis functions and probability distribution. All orthogonal polynomials satisfy the recurrence relation:
+\begin{equation*}
+    b_{i+1}(z) = 
+    \begin{cases}
+    (z-a_i)b_i(z) & i=1\\
+    (z-a_i)b_i(z) - \beta_i b_{i-1}z & {\textrm{else}}
+    \end{cases}
+\end{equation*}
+with $b_1(z)$ = 1 and weights
+\begin{equation*}
+    \begin{split}
+    \alpha_i &= \frac{\int_Z z b_i^2(z)p(z)dz} {\int_Z b_i^2(z)p(z)dz}\\
+    \beta_i &= \frac{\int_Z b_i^2(z)p(z)dz}{\int_Z b_{i-1}^2(z)p(z)dz}      
+    \end{split}
+\end{equation*}
+The recurrence relation can be used to generate the basis functions. Each basis function $b_i$ is a polynomial of degree $i-1$. 
+
+\end{frame}
+
+\begin{frame}{Orthogonal polynomial basis functions}
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/orthogonal.jpeg}
+\end{figure} 
+\end{frame}
+
+\section{Coefficients}
+\begin{frame}{Coefficients}
+The coefficients $\theta_1, \cdots, \theta_k$ can be inferred by exploiting the orthogonality of the basis functions, producing an integration term amenable to \textcolor{blue}{Gaussian quadrature}.
+\begin{equation*}
+\begin{split}
+    f(z) &= \sum_{i=1}^k \theta_i b_i(z)\\
+    \int_Z f(z)b_j(z)p(z)dz &= \int_Z \bigg(\sum_{i=1}^k \theta_i b_i(z) \bigg) b_j(z)p(z)dz\\
+    &= \sum_{i=1}^k \theta_i \int_Z b_i(z)b_j(z)p(z)dz \\
+    &= \theta_j \int_Z b_j(z)p(z)dz\\
+    \implies \theta_j &= \frac{\int_Z f(z)b_j(z)p(z)dz}{\int_Z b_j(z)p(z)dz}
+\end{split}
+\end{equation*}
+\end{frame}
+
+\section{Multivariate}
+\begin{frame}{Multivariate}
+Polynomial chaos can be applied to functions with multiple random inputs. Multivariate basis functions over m variables are constructed as a product over univariate orthogonal polynomials:
+%\begin{equation*}
+%\begin{split}
+%\end{split}
+%\end{equation*}
 \end{frame}
 
 \section{Summary}
 \begin{frame}{Summary}
     \begin{itemize}
-        \item Constraints are requirements on the design points that a solution must satisfy.
-        \item Some constraints can be transformed or substituted into the problem to result in an unconstrained optimization problem.
-        \item Analytical methods using Lagrange multipliers yield the generalized Lagrangian and the necessary conditions for optimality under constraints.
-        \item A constrained optimization problem has a dual problem formulation that is easier to solve and whose solution is a lower bound of the solution to the original problem.
+        \item Polynomial chaos is a powerful uncertainty propagation technique basedon orthogonal polynomials.
+        \item Bayesian Monte Carlo uses Gaussian processes to efficiently arrive at the moments with analytic results for Gaussian kernels.
     \end{itemize}
 \end{frame}
 \end{document}

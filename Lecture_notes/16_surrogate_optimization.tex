@@ -137,114 +137,101 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 
 \section{Prediction-Based Exploration}
 \begin{frame}{Prediction-Based Exploration}
-Fitting Surrogate Models
+Gaussian process probes the probability distributions over the true objective function. These distributions can be used to guide an optimization process toward better design points. In prediction-based exploration, we select the minimizer of the surrogate function. If we use a Gaussian process surrogate model, prediction-based optimization has us select the minimizer of the mean function
+\begin{equation*}
+    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\min} \hat{\boldsymbol{\mu}}(\boldsymbol{x})
+\end{equation*}
+
+where $\hat{\boldsymbol{\mu}}(\boldsymbol{x})$ is the predicted mean of a Gaussian process at a design point $x$ based on the previous m design points. 
+
+Prediction-based optimization does not take uncertainty into account, and new samples can be generated very close to existing samples, which is a waste of time.
+\end{frame}
+
+\section{Error-Based Exploration}
+\begin{frame}{Error-Based Exploration}
+Error-based exploration seeks to increase confidence in the true function. A Gaussian process can tell us both the mean and standard deviation at every point. The next sample point is:
+\begin{equation*}
+    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\max} \hat{\boldsymbol{\sigma}}(\boldsymbol{x})
+\end{equation*}
+where $\hat{\boldsymbol{\sigma}}(\boldsymbol{x})$ is the predicted standard variance of a Gaussian process at a design point $x$ based on the previous m design points. 
+
 \begin{figure}
 \centering
-\includegraphics[width=120mm]{Figs/constraint-ab.jpeg}
-\end{figure}   
-
+\includegraphics[width=120mm]{Figs/error-explore.jpeg}
+\end{figure} 
 \end{frame}
 
-\section{Constraints}
-\begin{frame}{Constraints}
-Constraints are not typically specified directly through a known feasible set X . Instead, the feasible set is typically formed from two types of constraints:
 
-\begin{itemize}
-    \item equality constraints, $h(x)=0$ 
-    \item inequality constraints, $g(x) \leq 0$
-    
-\end{itemize}
+\section{Lower Confidence Bound Exploration}
+\begin{frame}{Lower Confidence Bound Exploration}
+The error-based exploration may sample the regions that are unpromising. Lower confidence bound exploration trades off between greedy minimization employed by prediction-based optimization and uncertainty reduction employed by error-based exploration with the following strategy,
 
-Any optimization problem can be rewritten using these constraints
 \begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 \\
-    ~~~~~~~~~ g_j(x) = 0
+    LB(x) = \hat{\mu}(\boldsymbol{x})-\alpha \hat{\sigma}(\boldsymbol{x})
 \end{gather*}
+$\alpha \geq 0$ is to control the trade-off between exploration and exploitation. 
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/LB.jpeg}
+\end{figure} 
 
 \end{frame}
 
-\section{Transformations to Remove Constraints}
-\begin{frame}{Transformations to Remove Constraints}
-In some cases, it may be possible to transform a problem so that constraints can be removed. For example, bound constraints a ≤ x ≤ b can be removed by passing x through a transform
-
+\section{Probability of Improvement Exploration}
+\begin{frame}{Probability of Improvement Exploration}
+We select the design point that maximizes the chance that the new point will be better than any other. The improvement for a function sampled at $x$ producing $y=f(x)$ is
 \begin{equation*}
-x = \frac{b+a}{2} + \frac{b-a}{2}\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)
+    I(y) = 
+    \begin{cases}
+    y_{\min} - y & \textrm{if~} y<y_{\limin}\\
+    0 & {\textrm{otherwise}}\\
+    \end{cases}
+\end{equation*}
+The probability of improvement at points where $\hat{\sigma}>0$ is
+\begin{equation*}
+P(y<y_{\min}) = \int_0^{y_{\min}} \mathcal{N}(y| \hat{\mu}, \hat{\sigma})dy = \Phi(\frac{y_{\min}-\hat{\mu}}{\hat{\sigma}})
 \end{equation*}
 
-Below is an example
-\begin{gather*}
-    ~~~~~ \underset{x}{\min} ~ x\sin{x}\\
-    {s.t.}~~~~ 2\leq x \leq 6 \\
-\end{gather*}
-Can be transformed to 
-\begin{gather*}
-    \underset{\hat{x}}{\min} ~ \bigg[4+2\bigg(\frac{2\hat{x}}{1+\hat{x}^2}\bigg)x
-    + \sin \bigg[ 4 + 2\frac{2\hat{x}}{1+\hat{x}^2}\bigg]
-\end{gather*}
+\begin{figure}
+\centering
+\includegraphics[width=100mm]{Figs/prob.jpeg}
+\end{figure} 
 
 \end{frame}
 
-\section{Lagrange Multipliers}
-\begin{frame}{Lagrange Multipliers}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ f(\boldsymbol{x})\\
-    {s.t.}~~~~ h_i(x) = 0 
-\end{gather*}
-
-where $f$ and $h$ have continuous partial derivatives.
-
-We can formulate the Lagrangian, which is a function of the design variables,
-\begin{gather*}
-    \mathcal{L}(x, \lambda) = f(x) - \lambda h(x) 
-\end{gather*}
-
-Solving $\nabla \mathcal{L}(x, \lambda)$ = 0. Specifically, $\nabla_x \mathcal{L}$ = 0 gives us the condition $\nabla f= \lambda \nabla h$, and $\nabla \lambda \mathcal{L}=0$ gives us $h(x)=0$. Any solution is considered a critical point.
-
-\end{frame}
-
-\begin{frame}{Lagrange Multipliers to a single equality condition}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
+\section{Expected Improvement Exploration}
+\begin{frame}{Expected Improvement Exploration}
+We can also focus our exploration of points that maximize our expected improvement over the current best function value.
+Through a substitution
 \begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
+    z = \frac{y-\hat{\mu}}{\hat{\sigma}} ~~~~~~~~~~~ y`_{\min} = \frac{y_{\min} - \hat{\mu}}{\hat{\sigma}}
 \end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
+we can write the improvement as
+\begin{equation*}
+    I(y) = 
+    \begin{cases}
+    \hat{\sigma} (y`_{\min} -z) & {\textrm{if}~} z<y`_{\min} {\textrm{~and~}} \hat{\sigma} >0 \\
+    0 & {\textrm{otherwise}}\\
+    \end{cases}
+\end{equation*}
+where $\hat{\mu}$ and $\hat{\sigma}$ are the predicted mean and standard deviation.
+
+We can calculate the expected improvement using Gaussian process:
+\begin{equation*}
+\begin{split}
+    \mathbb{E}[I(y)] &= \hat{\sigma} \int_{-\infty}^{y`_{\min}}  \mathcal{N}(z|0,1)dz\\
+    & = (y_{\min} - \hat{\mu}) P (y \leq y_{\min}) + \hat{\sigma} \mathcal{N}(y_{\min} | \hat{\mu}, \hat{\sigma}ˆ2)
+\end{split}
+\end{equation*}
 
 \end{frame}
 
+\begin{frame}{Expected Improvement Exploration}
 
-\begin{frame}{Lagrange Multipliers to multiple equality conditions}
-The method of Lagrange multipliers is used to optimize a function subject to equality
-constraints. 
-\begin{gather*}
-    ~~~~~ \underset{\boldsymbol{x}}{\min} ~ -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] \\
-    {s.t.}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ x_1 - x_2^2 = 0 
-\end{gather*}
-
-We can formulate the Lagrangian, 
-\begin{equation*}
-    \mathcal{L}(x, \lambda) = -\exp[-(x_1x_2-3/2)^2 - (x_2-3/2)^2] + \lambda(x_1 - x_2^2)
-\end{equation*}
-We compute
-\begin{itemize}
-    \item $\frac{\partial \mathcal{L}}{\partial x_1}$
-    \item $\frac{\partial \mathcal{L}}{\partial x_2}$
-    \item $\frac{\partial \mathcal{L}}{\partial \lambda}$
-\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=125mm]{Figs/EI.jpeg}
+\end{figure} 
 
 \end{frame}
 

@@ -222,10 +222,21 @@ where
     \item $m(x)$ is the mean function to represent the prior knowledge about the function
     \item $k(x, x`)$ is the covariance function to control the smoothness.
 \end{itemize}
-A common choice os $k$ is the squared exponential function
+
+\end{frame}
+
+\begin{frame}{Kernel Function}
+Kernel function is to control the smoothness of the sample. A common choice of $k$ is the squared exponential function
 \begin{equation*}
     k(x, x`) = \exp\bigg(-\frac{(x-x`)^2}{2l^2}\bigg)
 \end{equation*}
+
+\begin{figure}
+\centering
+\includegraphics[width=120mm]{Figs/kernel.jpeg}
+\end{figure}  
+
+
 \end{frame}
 
 \section{Prediction}
@@ -274,10 +285,98 @@ The conditional distribution is given by: $\hat{\boldsymbol{y}} | \boldsymbol{y}
 
 \section{Gradient Measurements}
 \begin{frame}{Gradient Measurements}
+Gradient observations can be incorporated into Gaussian processes in a manner consistent with the existing Gaussian process machinery.
+\begin{equation*}
+    \begin{bmatrix} 
+    y\\
+    \nabla y\\
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    \boldsymbol{m}(f) \\
+    \boldsymbol{m}(\nabla)
+    \end{bmatrix},
+    \begin{bmatrix}
+    \boldsymbol{K}_{ff}  & \boldsymbol{K}_{f\nabla}\\
+    \boldsymbol{K}_{\nabla f}    & \boldsymbol{K}_{\nabla \nabla}\\
+    \end{bmatrix}
+    \bigg)
+\end{equation*}
+Where
+\begin{itemize}
+    \item  $y\sim N(m_f, K_{ff})$ is a traditional Gaussian process, 
+    \item $\boldsymbol{m\nabla}$ is a mean function for the gradient,
+    \item $\boldsymbol{K}_{f\nabla}$ is the covariance matrix between function values and gradients, 
+    \item $\boldsymbol{K}_{\nabla f}$ is the covariance matrix between function gradients and values, 
+    \item $\boldsymbol{K}_{\nabla \nabla}$ is the covariance matrix between function gradients.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Prediction}
+    Prediction can be accomplished in the same manner as with a traditional Gaussian process. We first construct the joint distribution
+\begin{equation*}
+    \begin{bmatrix} 
+    \hat{y}\\
+    y\\
+    \nabla y\\
+    \end{bmatrix}
+    \sim \mathcal{N}\bigg(
+    \begin{bmatrix}
+    \boldsymbol{m}(f(X^*)) \\
+    \boldsymbol{m}(f(X)) \\
+    \boldsymbol{m}(\nabla X)
+    \end{bmatrix},
+    \begin{bmatrix}
+    \boldsymbol{K}_{ff}(X^*, X^*)     &\boldsymbol{K}_{ff}(X^*, X)  & \boldsymbol{K}_{f\nabla}(X^*, X)\\
+    \boldsymbol{K}_{ff}(X, X^*)       &\boldsymbol{K}_{ff}(X, X)  & \boldsymbol{K}_{f\nabla}(X, X)\\
+    \boldsymbol{K}_{\nabla f}(X, X^*) &\boldsymbol{K}_{\nabla f}(X, X) & \boldsymbol{K}_{\nabla \nabla}(X, X)\\
+    \end{bmatrix}
+    \bigg)
+\end{equation*}
+
+The conditional distribution follows the same Gaussian relations
+
+\begin{equation*}
+{\tiny 
+%{\small
+\begin{split}
+    \boldsymbol{\mu}^* &= m_f(X^{∗}) +  
+    \begin{bmatrix}
+        K_{ff}(X^{∗}, X) \\
+        K_{\nabla f} (X^{∗}, X)
+    \end{bmatrix}
+    ^T
+    \begin{bmatrix}
+        K_{ff}(X, X)& K_{f\nabla}(X, X)\\
+        K_{\nabla f}(X, X) & K_{\nabla\nabla}(X, X)
+    \end{bmatrix}
+    ^{-1}
+    \begin{bmatrix}
+        \boldsymbol{y} - m(X) \\
+        \nabla \boldsymbol{y} - m\nabla (X)     
+    \end{bmatrix}
+\\
+    \boldsymbol{\Sigma}^* &= K_ff(X^{*} - X^{*}) - 
+    \begin{bmatrix}
+        K_{ff}(X^{∗}, X) \\
+        K_{\nabla f} (X^{∗}, X)
+    \end{bmatrix}
+    ^T  
+    \begin{bmatrix}
+        K_{ff}(X, X)& K_{f\nabla}(X, X)\\
+        K_{\nabla f}(X, X) & K_{\nabla\nabla}(X, X)
+    \end{bmatrix}
+    ^{-1}
+    \begin{bmatrix}
+        K_{ff}(X^{∗}, X) \\
+        K_{\nabla f} (X^{∗}, X)
+    \end{bmatrix}
+\end{split}
+}
+\end{equation*}    
 
 
 \end{frame}
-
 
 \section{Noisy Measurements}
 \begin{frame}{Noisy Measurements}
