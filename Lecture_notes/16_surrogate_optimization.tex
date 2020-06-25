@@ -139,7 +139,7 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 \begin{frame}{Prediction-Based Exploration}
 Gaussian process probes the probability distributions over the true objective function. These distributions can be used to guide an optimization process toward better design points. In prediction-based exploration, we select the minimizer of the surrogate function. If we use a Gaussian process surrogate model, prediction-based optimization has us select the minimizer of the mean function
 \begin{equation*}
-    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\min} \hat{\boldsymbol{\mu}}(\boldsymbol{x})
+    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\min}~~ \hat{\boldsymbol{\mu}}(\boldsymbol{x})
 \end{equation*}
 
 where $\hat{\boldsymbol{\mu}}(\boldsymbol{x})$ is the predicted mean of a Gaussian process at a design point $x$ based on the previous m design points. 
@@ -151,7 +151,7 @@ Prediction-based optimization does not take uncertainty into account, and new sa
 \begin{frame}{Error-Based Exploration}
 Error-based exploration seeks to increase confidence in the true function. A Gaussian process can tell us both the mean and standard deviation at every point. The next sample point is:
 \begin{equation*}
-    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\max} \hat{\boldsymbol{\sigma}}(\boldsymbol{x})
+    \boldsymbol{x}^{m+1} = \underset{\boldsymbol{x}\in \chi}{\arg\max}~~ \hat{\boldsymbol{\sigma}}(\boldsymbol{x})
 \end{equation*}
 where $\hat{\boldsymbol{\sigma}}(\boldsymbol{x})$ is the predicted standard variance of a Gaussian process at a design point $x$ based on the previous m design points. 
 
@@ -183,7 +183,7 @@ We select the design point that maximizes the chance that the new point will be 
 \begin{equation*}
     I(y) = 
     \begin{cases}
-    y_{\min} - y & \textrm{if~} y<y_{\limin}\\
+    y_{\min} - y & \textrm{if~} y<y_{\min}\\
     0 & {\textrm{otherwise}}\\
     \end{cases}
 \end{equation*}
