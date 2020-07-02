@@ -81,7 +81,7 @@
 %\usecolortheme{seagull}
 %\usecolortheme{seahorse}
 %\usecolortheme{whale}
-%\usecolortheme{wolverine}
+\usecolortheme{wolverine}
 
 %\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
 \setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
@@ -136,7 +136,7 @@ University of Nevada Las Vegas\\ % Your institution for the title page
 %------------------------------------------------
 \section{Gradient methods with fixed learning rate}
 \begin{frame}{Gradient methods with fixed learning rate}
-We have talked about steepest descent and conjugate gradient methods, which usually work with the line search methods. Alliteratively, it is popular to use the fixed learning rate method based on Gradient descent. However, the standard version will take a long time to traverse a nearly flat surface.
+We have talked about steepest descent and conjugate gradient methods, which usually work with the line search methods. Alternatively, it is popular to use the fixed learning rate method based on Gradient descent. However, the standard version will take a long time to traverse a nearly flat surface.
 Several methods have been proposed. They are commonly used in machine learning neural networks training.
 \begin{columns}
 \begin{column}{.4\textwidth}
@@ -163,11 +163,11 @@ Several methods have been proposed. They are commonly used in machine learning n
 
 \section{Momentum}
 \begin{frame}{Momentum}
-Allowing momentum to accumulate is one way too speed progress. 
+Allowing momentum to accumulate is one way to speed the progress. 
 Thus we can modify the gradient descent to incorporate momentum.
 \begin{gather*}
-    v^{k+1} = \beta^k + \alpha^k g^k \\
-    x^{k+1} = x^k + v^{k+1} 
+    \boldsymbol{v}^{k+1} = \beta \boldsymbol{v}^k + \alpha \boldsymbol{g}^k \\
+    \boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \boldsymbol{v}^{k+1} 
 \end{gather*}
 When $\beta$=0, it is gradient descent. 
 \begin{figure}
@@ -182,8 +182,8 @@ When $\beta$=0, it is gradient descent.
 \begin{frame}{Nesterov Momentum}
 One issue of momentum is that the steps do not slow down enough at the bottom of a valley and it tends to \textcolor{blue}{overshoot the valley}. Nesterov Momentum remedies the issue by the following updates,
 \begin{gather*}
-    v^{k+1} = \beta^k + \alpha^k g^k \\
-    x^{k+1} = x^k + v^{k+1} 
+    \boldsymbol{v}^{k+1} = \beta \boldsymbol{v}^k + \alpha \nabla f(\boldsymbol{x} + \beta \boldsymbol{v}^k) \\
+    \boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \boldsymbol{v}^{k+1} 
 \end{gather*}
 
 \begin{figure}
@@ -236,11 +236,11 @@ The adaptive moment estimation (Adam) is so far the most widely used optimizatio
 It stores both an exponentially decaying squared gradient like RMSProp and Adadelta, but also an exponentially decaying gradient like momentum.
 \begin{equation*}
  \begin{split}
-    v^{k+1} &= \gamma_v v^k + (1-\gamma_v) g^k \\
-    s^{k+1} &= \gamma_s s^k + (1-\gamma_s) \bigg(g^k \odot g^k \bigg)\\
-    \hat{v}^{k+1} &= v^{k+1}/(1-\gamma_v^k)\\
-    \hat{s}^{k+1} &= s^{k+1}/(1-\gamma_s^k)\\
-    x^{k+1} &= x^k - \alpha \hat{v}^{k+1}/\bigg(\epsilon + \sqrt{\hat{s}^{k+1}}\bigg)
+    \boldsymbol{v}^{k+1} &= \gamma_v \boldsymbol{v}^k + (1-\gamma_v) \boldsymbol{g}^k \\
+    \boldsymbol{s}^{k+1} &= \gamma_s \boldsymbol{s}^k + (1-\gamma_s) \bigg(\boldsymbol{g}^k \odot \boldsymbol{g}^k \bigg)\\
+    \hat{\boldsymbol{v}}^{k+1} &= \boldsymbol{v}^{k+1}/(1-\gamma_v^k)\\
+    \hat{\boldsymbol{s}}^{k+1} &= \boldsymbol{s^{k+1}}/(1-\gamma_s^k)\\
+    \boldsymbol{x}^{k+1} &= \boldsymbol{x}^k - \alpha \hat{\boldsymbol{v}}^{k+1}/\bigg(\epsilon + \sqrt{\hat{\boldsymbol{s}}^{k+1}}\bigg)
  \end{split}
 \end{equation*}
 
