@@ -199,7 +199,7 @@ Newton’s method can also be used to supply a descent direction to line search 
 \begin{frame}{Secant Method}
 Newton's method for \textcolor{blue}{univariate} function minimization needs to know the first and second derivatives. However, the second derivative is not easy to compute for some cases. The secant method use estimates of $H$ as follows
 \begin{gather*}
-    f``(x^k) \approx \frac{f`(x^k - f`(x^{k-1})} {x^k-x^{k-1}}
+    f``(x^k) \approx \frac{f`(x^k) - f`(x^{k-1})} {x^k-x^{k-1}}
 \end{gather*}
 
 The secant method requires \textcolor{blue}{an additional initial design point}. It suffers from the same problems as Newton's method when quadratic function is not a good approximation.
