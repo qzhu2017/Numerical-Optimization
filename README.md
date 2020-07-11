@@ -1,5 +1,8 @@
 # Numerical-Optimization
-This is a course material for numerical optimization to be taught in summer 2020 (June-August, 10 weeks) through webex. I have not finalized the schedule yet. It is completely open to everyone. If you are interested, please feel free to contact qiang.zhu@unlv.edu before May 31. 
+This is a course material for numerical optimization to be taught in summer 2020 (June-August, 10 weeks) through webex. I have not finalized the schedule yet. It is completely open to everyone. If you are interested, please feel free to contact qiang.zhu@unlv.edu between 2020/06-2020/08. 
+
+
+![E](https://github.com/qzhu2017/Numerical-Optimization/blob/master/Lecture_notes/Figs/ip.gif)
 
 ## Textbooks
 This course is intended to cover
@@ -18,8 +21,7 @@ Though this is a virtual class, we plan to make it as interactive as possible. T
 - Lecture (Math details for each algorithm)
 - Coding session (code accomplishment of the algos in each lecture)
 
-This course does not require one to install the packages on the local computer.
-All codings will be done through jupyter notebook powered by [Juliabox](https://www.juliabox.com)
+All codings will be done through jupyter notebook.
 
 Each class will take about 90 minutes.
 
