@@ -240,7 +240,7 @@ where
 
 \section{BFGS method}
 \begin{frame}{The Broyden-Fletcher-Goldfarb-Shanno (BFGS) method}
-In the BFGS algorithm, it does not approximate $\boldsymbol{Q}^k$, but handles $\boldsymbol{H}^k = (\boldsymbol{Q}^k)^{-1}$
+The BFGS algorithm does not approximate $\boldsymbol{Q}^k$, but handles $\boldsymbol{H}^k = (\boldsymbol{Q}^k)^{-1}$
 
 \begin{equation*}
     \boldsymbol{H}^{k+1}\boldsymbol{\gamma}^{k} = \boldsymbol{\delta}^{k}    
@@ -260,7 +260,10 @@ The minimize condition is,
     \frac{\boldsymbol{\delta}^k (\boldsymbol{\delta}^k)^T}{(\boldsymbol{\delta}^k)^T \boldsymbol{\gamma}^k}
 \end{equation*}
 
-BFGS does better than DFP with approximate line search. 
+BFGS does better than DFP with approximate line search. \\
+\pause
+\textcolor{red}{Give an example where the BFGS update does not exist.\\ 
+What would you do in this case?}
 \end{frame}
 
 \section{The Broyden Class}

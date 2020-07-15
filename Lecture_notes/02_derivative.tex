@@ -178,7 +178,7 @@ For practical applications, we rely on numerical methods to evaluate the derivat
      \end{equation*}
      \item Complex Step Method
      \begin{equation*}
-         f`(x) = \textrm{imag}(f(x+ih))
+         f`(x) = \textrm{imag}(f(x+ih)/h)
      \end{equation*}
      %\item Automatic Differentiation
 \end{itemize}
@@ -188,16 +188,17 @@ For practical applications, we rely on numerical methods to evaluate the derivat
 \begin{equation*}
     f(x+h) = f(x) + \frac{f`(x)}{1!}h + \frac{f``(x)}{2!}h^2 + \frac{f```(x)}{3!}h^3 + \cdots 
 \end{equation*}
+\pause
 We can arrange it to 
 
 \begin{equation*}
 \begin{split}
     f`(x)h &= f(x+h) - f(x) - \frac{f``(x)}{2!}h^2  - \frac{f```(x)}{3!}h^3 + \cdots \\
-    f`(x) &= \frac{f(x+h) - f(x)}{h} - \frac{f``(x)}{2!}h^2  - \frac{f```(x)}{3!}h^3 \\
+    f`(x) &= \frac{f(x+h) - f(x)}{h} - \frac{f``(x)}{2!}h  - \frac{f```(x)}{3!}h^2 \\
     f`(x) &= \frac{f(x+h) - f(x)}{h} + O(h)       
 \end{split}
 \end{equation*}
-Therefore, central difference has linear error.
+Therefore, forward difference has linear error.
 \end{frame}
 
 
@@ -219,27 +220,28 @@ According to Taylor expansion,
 \begin{equation*}
     f(x+ih) = f(x) + ihf`(x) - h^2\frac{f``(x)}{2!} - ih^3\frac{f```(x)}{3!} + \cdots 
 \end{equation*}
-
+\pause
 If we take only the imaginary part,
 \begin{equation*}
 \begin{split}
     &\textrm{Im} (f(x+ih)) = hf`(x) -  h^3\frac{f```(x)}{3!} + \cdots \\
-    &f`(x) = \frac{\textrm{Im}(f(x+ih))}{h} + h^2\frac{f```(x)}{3!} - \cdots = \frac{\textrm{Im}(f(x+ih))}{h} + O(h^3)      
+    &f`(x) = \frac{\textrm{Im}(f(x+ih))}{h} + h^2\frac{f```(x)}{3!} - \cdots = \frac{\textrm{Im}(f(x+ih))}{h} + O(h^2)      
 \end{split}
 \end{equation*}
+\pause
 While the real part is
 \begin{equation*}
 \begin{split}
-		\textrm{Re}(f(x+ih)) &= f(x) - h^2\frac{f``(x)}{2!} + \cdots \\
+		\textrm{Re}(f(x+ih)) &= f(x) - h^3\frac{f``(x)}{2!} + \cdots \\
 		f(x) &= \textrm{Re}(f(x+ih)) + O(h^2)
 \end{split}    
 \end{equation*}
-
+\pause
 The complex step method is advantageous since 
 
 \begin{itemize}
     \item Both $f(x)$ and $f`(x)$ can be evaluated in a single run
-    \item $f`(x)$ has a cubic error
+    \item $f`(x)$ has a quadratic error
 \end{itemize}
 
 \end{frame}
@@ -252,6 +254,40 @@ The complex step method is advantageous since
 \end{figure}
 
 \textcolor{blue}{Homework: reproduce the above figure by yourself!}
+\end{frame}
+
+\begin{frame}{Why is complex step better than central difference?}
+\begin{equation*}
+\begin{split}
+    f(x+ih) &= u(x,h) + iv(x,h)\\
+    \textrm{Im}(f(x+ih)) &= h\frac{\partial v(x, y)}{\partial y}|_{y=0} + O(h^2)
+\end{split}
+\end{equation*}
+If $v(x,0)=0$, $f(x)=u(x,0)$. Dividing by $h$, we have f`(x)
+\begin{equation*}
+    \frac{\partial v(x, y)}{\partial y}|_{y=0} = \frac{\partial u(x, 0)}{\partial x}
+\end{equation*}
+The left side is what we used to compute the complex step. The right side is due to \textcolor{blue}{Cauchy-Riemann equation}, which is used by the finite difference. Note that two method use two different functions ($u$ and $v$).
+
+
+\end{frame}
+
+\begin{frame}{Why is complex step better than central difference?}
+
+Consider a function $f(z) = z^2$, 
+\begin{equation*}
+    f(z) = z^2 = x^2 - y^2 + i2xy
+\end{equation*}
+The finite difference does the function $x^2$, while the complex step gives 2$x$, in the case for any $h=y>0$.
+\vspace{10mm}
+
+\pause
+Try another function:
+\begin{equation*}
+    \cos(x+iy)=\cos(x)\textrm{cosh}(y) - i\sin(x)\textrm{sinh}(y).
+\end{equation*}
+The imaginary part is $−\sin(x)\sinh(y)$. For a small $y$, it gives -sin$(x)$.
+
 \end{frame}
 
 
